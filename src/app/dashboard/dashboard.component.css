@@ -1,0 +1,31 @@
+.dashboard-container {
+  max-width: 600px;
+  margin: 80px auto;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.dashboard-container h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.dashboard-container p {
+  color: #666;
+  margin-bottom: 25px;
+}
+
+.dashboard-actions button {
+  margin: 8px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  background: #1976d2;
+  color: #fff;
+}
+
+.dashboard-actions button.logout {
+  background: #d32f2f;
+}

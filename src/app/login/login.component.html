@@ -1,0 +1,19 @@
+
+<div class="auth-card">
+<h3>Login</h3>
+<input type="email"
+       placeholder="Email"
+       [(ngModel)]="model.email"
+       required>
+
+<input type="password"
+       placeholder="Password"
+       [(ngModel)]="model.password"
+       required>
+
+<button (click)="login()">Login</button>
+
+<p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+<a routerLink="/forgot-password">Forgot Password?</a>
+</div>

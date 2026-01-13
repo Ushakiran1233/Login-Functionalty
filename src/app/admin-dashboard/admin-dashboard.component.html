@@ -1,0 +1,42 @@
+<div class="admin-container">
+
+  <!-- Header -->
+  <header class="admin-header">
+    <h2>Admin Dashboard</h2>
+    <div class="admin-info">
+      <span>{{ adminEmail }}</span>
+      <button (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- Cards -->
+  <div class="card-grid">
+
+    <div class="card">
+      <h3>Users</h3>
+      <p>Manage all registered users</p>
+      <button>View Users</button>
+    </div>
+
+    <div class="card">
+      <h3>Roles</h3>
+      <p>Create & assign roles</p>
+      <button>Manage Roles</button>
+    </div>
+
+    <div class="card">
+      <h3>Technicians</h3>
+      <p>Approve & manage technicians</p>
+      <button>View Technicians</button>
+    </div>
+
+    <div class="card">
+      <h3>Reports</h3>
+      <p>View system reports</p>
+      <button>View Reports</button>
+    </div>
+
+  </div>
+
+</div>
+

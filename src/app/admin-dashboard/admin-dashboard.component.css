@@ -1,0 +1,78 @@
+.admin-container {
+  min-height: 100vh;
+  background: #f4f6f9;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Header */
+.admin-header {
+  background: #1e293b;
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-info {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.admin-info button {
+  background: #ef4444;
+  border: none;
+  padding: 6px 14px;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.admin-info button:hover {
+  background: #dc2626;
+}
+
+/* Cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 30px;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card h3 {
+  margin-bottom: 8px;
+  color: #1f2937;
+}
+
+.card p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.card button {
+  margin-top: 12px;
+  background: #2563eb;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.card button:hover {
+  background: #1d4ed8;
+}
