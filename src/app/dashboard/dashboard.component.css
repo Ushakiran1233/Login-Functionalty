@@ -1,31 +1,235 @@
-.dashboard-container {
-  max-width: 600px;
-  margin: 80px auto;
-  padding: 30px;
+/* ================== GLOBAL ================== */
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ================== LAYOUT ================== */
+.layout {
+  display: flex;
+  height: 100vh;
+  background: #f4f6f9;
+}
+
+/* ================== SIDEBAR ================== */
+.sidebar {
+  width: 240px;
+  background: #1f2937;
+  color: #fff;
+  padding: 20px;
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 22px;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+}
+
+.menu li {
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.menu li:hover,
+.menu li.active {
+  background: #374151;
+}
+
+/* ================== CONTENT ================== */
+.content {
+  flex: 1;
+  padding: 20px;
+}
+
+/* ================== TOP BAR ================== */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  position: relative;
+}
+
+/* ================== PROFILE ICON ================== */
+.profile-wrapper {
+  position: relative;
+}
+
+.profile {
+  width: 42px;
+  height: 42px;
+  background: #1976d2;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  user-select: none;
+}
+
+/* ================== PROFILE CARD (ADMIN STYLE) ================== */
+.profile-card {
+  position: absolute;
+  top: 55px;
+  right: 0;
+  width: 280px;
+  max-width: 90vw;
   background: #ffffff;
   border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  text-align: center;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  padding: 15px;
+  z-index: 9999;
+  animation: dropdownFade 0.2s ease-in-out;
+}
+
+.profile-card h4 {
+  margin-bottom: 12px;
+  font-size: 16px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 6px;
+}
+
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.profile-actions button {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.profile-actions .secondary {
+  background: #e5e7eb;
+}
+
+.profile-actions .danger {
+  background: #ef4444;
+  color: white;
+}
+
+/* ================== DASHBOARD BODY ================== */
+.dashboard-container {
+  margin-top: 30px;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
 }
 
 .dashboard-container h2 {
-  color: #333;
   margin-bottom: 10px;
 }
 
 .dashboard-container p {
-  color: #666;
-  margin-bottom: 25px;
+  color: #555;
 }
 
-.dashboard-actions button {
-  margin: 8px;
-  padding: 10px 20px;
-  border-radius: 4px;
-  background: #1976d2;
-  color: #fff;
+/* ================== POPUP OVERLAY ================== */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.dashboard-actions button.logout {
-  background: #d32f2f;
+/* ================== POPUP CARD ================== */
+.popup-card {
+  background: white;
+  padding: 25px;
+  width: 340px;
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  animation: popupFade 0.3s ease-in-out;
+}
+
+.popup-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.popup-actions button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.popup-actions .refresh {
+  background: #22c55e;
+  color: white;
+  margin-right: 10px;
+}
+
+.popup-actions .logout {
+  background: #ef4444;
+  color: white;
+}
+
+/* ================== ANIMATIONS ================== */
+@keyframes popupFade {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes dropdownFade {
+  from {
+    transform: translateY(-5px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ================== RESPONSIVE ================== */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .topbar {
+    flex-direction: column;
+    gap: 10px;
+  }
 }

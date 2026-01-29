@@ -14,8 +14,9 @@ import { AuthService } from '../auth.service';
 export class ChangepasswordComponent {
 
   model = {
-    currentPassword: '',
-    newPassword: ''
+    CurrentPassword: '',
+    NewPassword: '',
+    ConfirmPassword: ''
   };
 
   errorMessage = '';
@@ -31,8 +32,8 @@ export class ChangepasswordComponent {
       next: (res: any) => {
         this.successMessage = res.message || 'Password changed successfully';
         this.errorMessage = '';
-        // Optional: redirect after 2 sec
-        setTimeout(() => this.router.navigate(['/login']), 2000);
+        
+        setTimeout(() => this.router.navigate(['/dashboard']), 2000);
       },
       error: (err) => {
         this.errorMessage = err.error?.Errors?.join(', ') || 'Something went wrong';

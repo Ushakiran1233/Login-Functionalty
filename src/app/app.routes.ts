@@ -8,40 +8,53 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
 
+// Admin child components
+import { UsersComponent } from './users/users.component';
+import { RolesComponent } from './roles/roles.component';
+import { ReportsComponent } from './reports/reports.component';
+import { SettingsComponent } from './settings/settings.component';
+
 export const routes: Routes = [
 
-  // Default: Show Register page first
+  // 🔓 PUBLIC ROUTES
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-
-  // Public routes
   { path: 'login', component: LoginComponent },
-   { path: 'register', component: RegisterComponent },
+  { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotpasswordComponent },
   { path: 'reset-password', component: ResetpasswordComponent },
 
-  // Protected User routes
+  // 🔐 PROTECTED ROUTES
   {
-    path: 'dashboard',
-    component: DashboardComponent,
-    canActivate: [AuthGuard],
-    data: { role: 'User' }
+    path: '',
+    canActivateChild: [AuthGuard],
+    children: [
+
+      // 👤 USER DASHBOARD (normal users)
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+        data: { role: 'User' }
+      },
+
+      // 🛡️ ADMIN DASHBOARD (sidebar + content)
+      {
+        path: 'admin-dashboard',
+        component: AdminDashboardComponent,
+        data: { role: 'Admin' },
+    children: [
+    { path: '', redirectTo: 'users', pathMatch: 'full' }, // default section
+    { path: 'users', component: UsersComponent, data: { role: 'Admin' } },
+    { path: 'roles', component: RolesComponent, data: { role: 'Admin' } },
+    { path: 'reports', component: ReportsComponent, data: { role: 'Admin' } },
+    { path: 'settings', component: SettingsComponent, data: { role: 'Admin' } }
+  ]
+      },
+
+      // 🔑 CHANGE PASSWORD
+      { path: 'change-password', component: ChangepasswordComponent }
+    ]
   },
 
-  // Protected Admin routes
-  {
-    path: 'admin-dashboard',
-    component: AdminDashboardComponent,
-    canActivate: [AuthGuard],
-    data: { role: 'Admin' }
-  },
-
-  // Protected common route
-  {
-    path: 'change-password',
-    component: ChangepasswordComponent,
-    canActivate: [AuthGuard]
-  },
-
-  // Wildcard
-  { path: '**', redirectTo: 'register' } // redirect unknown paths to Register
+  // ❗ WILDCARD
+  { path: '**', redirectTo: 'login' }
 ];

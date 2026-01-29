@@ -1,48 +1,68 @@
 import { Component } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
-import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../auth.service';
+import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [FormsModule,RouterLink,CommonModule],
+  imports: [FormsModule, CommonModule, RouterLink],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css'
+  styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-confirmPassword: any;
-errorMessage: any;
- 
-  constructor(private auth:AuthService,private router:Router){}
-  model = { email: '', password: '', role: 'User' };
-roles = ['Admin', 'User'];
 
-register() {
-   this.errorMessage = '';
+  // ===== REGISTRATION MODEL =====
+  model = {
+    name: '',
+    email: '',
+    mobile: '',
+    password: '',
+    confirmPassword: '',
+    role: 'User'   // default role, backend requires it
+  };
 
-  if (!this.model.email || !this.model.password || !this.confirmPassword || !this.model.role) {
-    this.errorMessage = 'All fields are required';
-    return;
-  }
-   if (!this.model.email.includes('@')) {
-    this.errorMessage = 'Invalid email address';
-    return;
-  }
-  if (this.model.password.length < 6) {
-    this.errorMessage = 'Password must be at least 6 characters';
-    return;
-  }
-   if (this.model.password !== this.confirmPassword) {
-    this.errorMessage = 'Passwords do not match';
-    return;
-  }
-  this.auth.register(this.model).subscribe({
-    next: () => this.router.navigate(['/login']),
-    error: err => alert(err.error[0]?.description)
-  });
-}
+  // ===== COMPONENT STATE =====
+  errorMessage = '';
+  loading = false;
+  showPassword = false;
+  showConfirmPassword = false;
 
+  constructor(private auth: AuthService, private router: Router) {}
 
+  // ===== TOGGLE PASSWORD VISIBILITY =====
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPassword() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  // ===== REGISTER USER =====
+  register() {
+    this.errorMessage = '';
+
+    // Password validation
+    if (this.model.password !== this.model.confirmPassword) {
+      this.errorMessage = 'Passwords do not match';
+      return;
+    }
+
+    this.loading = true;
+
+    this.auth.register(this.model).subscribe({
+      next: () => {
+        this.loading = false;
+        Swal.fire('Success', 'Registered successfully!', 'success');
+        this.router.navigate(['/login']);
+      },
+      error: err => {
+        this.loading = false;
+        this.errorMessage = err?.error?.message || 'Registration failed';
+      }
+    });
+  }
 }

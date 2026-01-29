@@ -1,15 +1,178 @@
-/* You can add global styles to this file, and also import other style files */
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-  background: linear-gradient(120deg, #f4f6f9, #e9eef5);
+/* ================= GENERAL CARD STYLING ================= */
+.card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  margin: 30px auto;
+  transition: all 0.3s ease;
 }
 
-button {
+.card:hover {
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card h3 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e272e;
+  text-align: center;
+}
+
+/* ================= INPUTS & SELECT ================= */
+.form-control,
+.form-select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #dcdde1;
+  outline: none;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3742fa;
+  box-shadow: 0 0 5px rgba(55, 66, 250, 0.3);
+}
+
+/* ================= SEARCH BAR + ACTION BUTTONS ================= */
+.add-role-wrapper,
+.add-user-wrapper {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.add-role-wrapper input,
+.add-user-wrapper input {
+  flex: 1;
+}
+
+.add-role-wrapper button,
+.add-user-wrapper button {
+  flex-shrink: 0;
+}
+
+/* ================= BUTTONS ================= */
+button.btn,
+.actions button {
+  padding: 8px 20px;
+  font-weight: 500;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-input {
-  outline: none;
+button.primary,
+.actions .primary {
+  background-color: #3742fa;
+  color: #fff;
+}
+
+button.primary:hover,
+.actions .primary:hover {
+  background-color: #2f36e0;
+}
+
+button.secondary,
+.actions .secondary {
+  background-color: #dcdde1;
+  color: #2f3640;
+}
+
+button.secondary:hover,
+.actions .secondary:hover {
+  background-color: #c1c1c1;
+}
+
+button.danger,
+.actions .danger {
+  background-color: #e84118;
+  color: #fff;
+}
+
+button.danger:hover,
+.actions .danger:hover {
+  background-color: #c23616;
+}
+
+button.edit-btn {
+  background-color: #fbc531;
+  color: #2f3640;
+}
+
+button.edit-btn:hover {
+  background-color: #f9a825;
+}
+
+/* ================= TABLE ================= */
+.user-table,
+.role-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.user-table th,
+.role-table th,
+.user-table td,
+.role-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #dcdde1;
+  text-align: left;
+}
+
+.user-table th,
+.role-table th {
+  background-color: #f5f6fa;
+  font-weight: 600;
+  color: #2f3640;
+}
+
+.user-table tbody tr:hover,
+.role-table tbody tr:hover {
+  background-color: #f1f2f6;
+  transition: all 0.2s ease;
+}
+
+/* ================= STATUS BADGES ================= */
+.status-text {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #fff;
+  display: inline-block;
+  text-align: center;
+}
+
+.status-text.active {
+  background-color: #44bd32;
+}
+
+.status-text.inactive {
+  background-color: #718093;
+}
+
+/* ================= ACTIONS COLUMN ================= */
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .add-role-wrapper,
+  .add-user-wrapper {
+    flex-direction: column;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
 }

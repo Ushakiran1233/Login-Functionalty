@@ -1,42 +1,62 @@
-<div class="admin-container">
+<div class="layout">
 
-  <!-- Header -->
-  <header class="admin-header">
-    <h2>Admin Dashboard</h2>
-    <div class="admin-info">
-      <span>{{ adminEmail }}</span>
-      <button (click)="logout()">Logout</button>
-    </div>
-  </header>
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <h2 class="logo">AdminPanel</h2>
 
-  <!-- Cards -->
-  <div class="card-grid">
+    <ul class="menu">
+      <li [class.active]="activeSection === 'dashboard'" (click)="navigateTo('dashboard')">📊 Dashboard</li>
+      <li [class.active]="activeSection === 'users'" (click)="navigateTo('users')">👥 Users</li>
+      <li [class.active]="activeSection === 'roles'" (click)="navigateTo('roles')">🛡️ Roles</li>
+      <li [class.active]="activeSection === 'reports'" (click)="navigateTo('reports')">📄 Reports</li>
+      <li [class.active]="activeSection === 'settings'" (click)="navigateTo('settings')">⚙️ Settings</li>
+    </ul>
+  </aside>
 
-    <div class="card">
-      <h3>Users</h3>
-      <p>Manage all registered users</p>
-      <button>View Users</button>
-    </div>
+  <!-- ================= MAIN CONTENT ================= -->
+  <div class="content">
 
-    <div class="card">
-      <h3>Roles</h3>
-      <p>Create & assign roles</p>
-      <button>Manage Roles</button>
-    </div>
+    <!-- ===== TOP BAR ===== -->
+    <header class="topbar">
+      <h3>Admin Dashboard</h3>
+      <div class="profile-wrapper" #profileBox>
+        <div class="profile" (click)="toggleProfile()">
+          <span>{{ (adminName || 'A').charAt(0).toUpperCase() }}</span>
+        </div>
+        <div class="profile-card" *ngIf="showProfile">
+          <h4>Profile</h4>
+          <div class="profile-row">
+            <span>Name</span>
+            <strong>{{ adminName || 'Admin' }}</strong>
+          </div>
+          <div class="profile-row">
+            <span>Role</span>
+            <strong>{{ adminRole }}</strong>
+          </div>
+          <div class="profile-actions">
+            <button class="secondary" routerLink="/change-password">Change Password</button>
+            <button class="danger" (click)="logout()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </header>
 
-    <div class="card">
-      <h3>Technicians</h3>
-      <p>Approve & manage technicians</p>
-      <button>View Technicians</button>
-    </div>
+    <!-- ================= PAGE BODY ================= -->
+    <main class="page-body">
 
-    <div class="card">
-      <h3>Reports</h3>
-      <p>View system reports</p>
-      <button>View Reports</button>
-    </div>
+      <!-- ===== DASHBOARD ===== -->
+      <div class="welcome-box" *ngIf="activeSection === 'dashboard'">
+        <h2>Welcome back, {{ adminName || 'Admin' }} 👋</h2>
+        <p>
+          You are logged in as <strong>{{ adminRole }}</strong>.
+          Manage users, roles, reports, and settings from the menu.
+        </p>
+      </div>
+
+      <!-- ===== CHILD ROUTES ===== -->
+      <router-outlet *ngIf="activeSection !== 'dashboard'"></router-outlet>
+
+    </main>
 
   </div>
-
 </div>
-

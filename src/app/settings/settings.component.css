@@ -1,0 +1,111 @@
+/* Container */
+.settings-section {
+  padding: 30px;
+  max-width: 900px;
+  margin: 20px auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+/* Section Title */
+.settings-section h2 {
+  font-size: 28px;
+  margin-bottom: 25px;
+  color: #1f2937; /* dark slate */
+  border-bottom: 2px solid #3b82f6;
+  padding-bottom: 8px;
+}
+
+/* Cards */
+.settings-section .card {
+  background-color: #fefefe;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Card Titles */
+.settings-section .card h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #111827;
+}
+
+/* Setting Items */
+.settings-section .setting-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 15px;
+}
+
+/* Labels */
+.settings-section label {
+  width: 150px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Inputs */
+.settings-section input[type="text"],
+.settings-section input[type="email"],
+.settings-section select {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.settings-section input[type="text"]:focus,
+.settings-section input[type="email"]:focus,
+.settings-section select:focus {
+  border-color: #3b82f6;
+}
+
+/* Checkbox */
+.settings-section input[type="checkbox"] {
+  width: auto;
+  transform: scale(1.2);
+  accent-color: #3b82f6;
+}
+
+/* Save Button */
+.settings-section .save-btn {
+  background-color: #3b82f6;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.settings-section .save-btn:hover {
+  background-color: #2563eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .settings-section {
+    padding: 20px;
+  }
+  .settings-section h2 {
+    font-size: 24px;
+  }
+  .settings-section .card h3 {
+    font-size: 18px;
+  }
+  .settings-section .setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .settings-section label {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+}

@@ -1,46 +1,265 @@
-.auth-card {
-  width: 380px;
-  margin: 100px auto;
-  padding: 30px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+/* ================= FULL PAGE BACKGROUND ================= */
+:host {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  min-height: 100vh;
+  width: 100%;
+
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.auth-card h2 {
+/* ===== Dark overlay ===== */
+:host::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 0;
+}
+
+/* ================= WRAPPER ================= */
+.auth-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* ================= GLASS CARD ================= */
+.auth-card {
+  width: 380px;
+  padding: 40px 30px;
+
+  /* 🔥 Glass effect */
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+
   text-align: center;
-  margin-bottom: 20px;
+}
+
+/* ================= HEADINGS ================= */
+.auth-card h3 {
+  margin-bottom: 8px;
+  font-size: 24px;
+  color: #ffffff;
+}
+
+.auth-card .subtitle {
+  margin-bottom: 25px;
+  font-size: 14px;
+  color: #e5e7eb;
+}
+
+/* ================= LABELS ================= */
+.auth-card label {
+  display: block;
+  text-align: left;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #f3f4f6;
+}
+
+/* ================= INPUTS ================= */
+.auth-card input[type="email"],
+.auth-card input[type="password"] {
+  width: 100%;
+  padding: 10px 12px; /* 🔹 smaller padding */
+  margin-bottom: 14px; /* 🔹 less space below input */
+
+  border-radius: 6px; /* 🔹 slightly smaller radius */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+
+  background: rgba(255, 255, 255, 0.75);
+  color: #111;
+  font-size: 13px; /* 🔹 smaller font */
+}
+
+.auth-card input::placeholder {
+  color: #555;
+}
+
+/* ================= PASSWORD TOGGLE ================= */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper .toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
   color: #333;
 }
 
-.auth-card input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+/* ================= REMEMBER / FORGOT ================= */
+.remember-forgot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 20px;
+  color: #e5e7eb;
 }
 
+.remember-forgot a {
+  color: #c7d2fe;
+  text-decoration: none;
+}
+
+/* ================= BUTTON ================= */
 .auth-card button {
   width: 100%;
-  padding: 10px;
-  background: #1976d2;
+  padding: 12px;
+
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border: none;
+  border-radius: 8px;
+
+  font-size: 16px;
   color: #fff;
-  border-radius: 4px;
-  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
 .auth-card button:hover {
-  background: #135ba1;
+  opacity: 0.9;
 }
 
-.auth-links {
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================= ERROR ================= */
+.auth-card .error {
+  color: #fecaca;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* ================= SPINNER ================= */
+.spinner {
+  margin: 15px auto;
+  width: 25px;
+  height: 25px;
+  border: 3px solid rgba(255,255,255,0.4);
+  border-top: 3px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================= OTP BOXES ================= */
+.otp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.otp-inputs {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.otp-inputs input {
+  width: 45px;
+  height: 55px;
   text-align: center;
-  margin-top: 15px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.75);
+  color: #111;
+  transition: all 0.3s ease;
 }
 
-.auth-links a {
-  color: #1976d2;
+.otp-inputs input:focus {
+  outline: none;
+  border-color: #667eea;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+.resend-otp {
+  margin-top: 15px;
+  font-size: 13px;
+  text-align: center;
+  color: #e5e7eb;
+}
+.resend-otp a {
+  color: #667eea;
   text-decoration: none;
+  font-weight: 500;
+  margin-left: 5px;
+  transition: all 0.3s;
+}
+.resend-otp a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+  cursor: pointer;
+}
+/* 🔒 Account Lockout Warning */
+.lockout-warning {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 6px;
+
+  background-color: #fff3cd;      /* light warning yellow */
+  color: #856404;                 /* warning text */
+  border: 1px solid #ffeeba;
+
   font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Disable button visual feedback */
+button[disabled] {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Optional: smoother appearance */
+.lockout-warning {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

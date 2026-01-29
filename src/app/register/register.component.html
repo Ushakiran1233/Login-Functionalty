@@ -1,33 +1,144 @@
-<div class="auth-card">
-  <h3>Register</h3>
-<input type="email"
-       placeholder="Email"
-       [(ngModel)]="model.email"
-       required>
+<div class="auth-wrapper">
+  <div class="auth-card">
 
-<input type="password"
-       placeholder="Password"
-       [(ngModel)]="model.password"
-       required minlength="8">
+    <!-- Auth Icon -->
+    <div class="auth-icon">
+      <span>👤</span>
+    </div>
 
-<input type="password"
-       placeholder="Confirm Password"
-       [(ngModel)]="confirmPassword"
-       required>
+    <!-- Heading -->
+    <h2>Create Account</h2>
 
-<select [(ngModel)]="model.role" required>
-  <option value="">Select Role</option>
-  <option value="Admin">Admin</option>
-  <option value="User">User</option>
-</select>
+    <form #registerForm="ngForm">
 
-<button (click)="register()">Register</button>
+      <!-- Full Name -->
+      <div class="input-group">
+        <label>Full Name</label>
+        <span class="icon">👤</span>
+        <input
+          type="text"
+          placeholder="Enter your full name"
+          [(ngModel)]="model.name"
+          name="name"
+          required
+          minlength="3"
+          pattern="^(?!.*\s{2,})[A-Za-z]+(?: [A-Za-z]+)*$"
+          #name="ngModel">
+      </div>
+      <small class="error" *ngIf="name.invalid && (name.dirty || name.touched)">
+        <ng-container *ngIf="name.errors?.['required']">Name is required</ng-container>
+        <ng-container *ngIf="name.errors?.['minlength'] && !name.errors?.['required']">Name must be at least 3 characters</ng-container>
+        <ng-container *ngIf="name.errors?.['pattern'] && !name.errors?.['required']">Name should contain only alphabets and single spaces</ng-container>
+      </small>
 
-<p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <!-- Email -->
+      <div class="input-group">
+        <label>Email </label>
+        <span class="icon">&#64;</span>
+        <input
+          type="email"
+          placeholder="Enter your email"
+          [(ngModel)]="model.email"
+          name="email"
+          required
+          email
+          pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$"
+          #email="ngModel">
+      </div>
+      <small class="error" *ngIf="email.invalid && (email.dirty || email.touched)">
+        <ng-container *ngIf="email.errors?.['required']">Email is required</ng-container>
+        <ng-container *ngIf="email.errors?.['email'] && !email.errors?.['required']">Enter valid email</ng-container>
+      </small>
 
+      <!-- Mobile -->
+      <div class="input-group">
+        <label>Mobile Number</label>
+        <span class="icon">📞</span>
+        <input
+          type="tel"
+          placeholder="+919876543210"
+          [(ngModel)]="model.mobile"
+          name="mobile"
+          required
+          pattern="^[6-9][0-9]{9}$"
+          maxlength="10"
+          #mobile="ngModel">
+      </div>
+      <small class="error" *ngIf="mobile.invalid && (mobile.dirty || mobile.touched)">
+        <ng-container *ngIf="mobile.errors?.['required']">Mobile number is required</ng-container>
+        <ng-container *ngIf="mobile.touched && mobile.value && mobile.value.match('[^0-9]')">Only numbers are allowed</ng-container>
+        <ng-container *ngIf="mobile.touched && mobile.value && mobile.value.length !== 10 && !mobile.value.match('[^0-9]')">Mobile number must be 10 digits</ng-container>
+        <ng-container *ngIf="mobile.touched && mobile.value && mobile.value.length === 10 && !mobile.value.match('^[6-9]')">Mobile number must start with 6–9</ng-container>
+      </small>
 
-  <p>
-    Already have account?
-    <a routerLink="/login">Login</a>
-  </p>
+      <!-- Password -->
+      <div class="input-group password-wrapper">
+        <label>Password</label>
+        <span class="icon">🔒</span>
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          placeholder="Enter password"
+          [(ngModel)]="model.password"
+          name="password"
+          required
+          minlength="8"
+          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+          #password="ngModel">
+        <span class="toggle" (click)="togglePassword()">👁️</span>
+      </div>
+      <small class="error" *ngIf="password.invalid && (password.dirty || password.touched)">
+        <ng-container *ngIf="password.errors?.['required']">Password is required</ng-container>
+        <ng-container *ngIf="password.errors?.['minlength'] && !password.errors?.['required']">Password must be at least 8 characters</ng-container>
+        <ng-container *ngIf="password.errors?.['pattern'] && !password.errors?.['required']">Must include uppercase, lowercase, number & special character</ng-container>
+      </small>
+
+      <!-- Confirm Password -->
+      <div class="input-group password-wrapper">
+        <label>Confirm Password</label>
+        <span class="icon">🔒</span>
+        <input
+          [type]="showConfirmPassword ? 'text' : 'password'"
+          placeholder="Confirm Password"
+          [(ngModel)]="model.confirmPassword"
+          name="confirmPassword"
+          #confirmPassword="ngModel"
+          required
+          minlength="8"
+        />
+        <span class="toggle" (click)="toggleConfirmPassword()">👁️</span>
+      </div>
+      <small class="error" *ngIf="(confirmPassword.dirty || confirmPassword.touched)">
+        <ng-container *ngIf="confirmPassword.errors?.['required']">Confirm Password is required</ng-container>
+        <ng-container *ngIf="!confirmPassword.errors?.['required'] && model.confirmPassword && model.password !== model.confirmPassword">Passwords do not match</ng-container>
+      </small>
+
+      <!-- Role selection for first user only -->
+      <div class="input-group" *ngIf="model.role !== 'User'">
+        <label>Role</label>
+        <select [(ngModel)]="model.role" name="role">
+          <option value="">-- Select Role --</option>
+          <option value="Admin">Admin</option>
+          <option value="User">User</option>
+        </select>
+      </div>
+
+      <!-- Register Button -->
+      <button
+        type="button"
+        (click)="register()"
+        [disabled]="registerForm.invalid || loading">
+        {{ loading ? 'Registering...' : 'Register' }}
+      </button>
+
+      <!-- Backend Error -->
+      <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <!-- Login Link -->
+      <p class="auth-links">
+        Already have an account?
+        <a routerLink="/login">Login</a>
+      </p>
+
+    </form>
+  </div>
 </div>

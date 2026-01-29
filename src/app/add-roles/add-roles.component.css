@@ -1,0 +1,80 @@
+/* ================= CARD ================= */
+.card.add-role-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  max-width: 500px;
+  margin: 40px auto;
+  transition: all 0.3s ease;
+}
+
+.card.add-role-card:hover {
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card.add-role-card h3 {
+  margin-bottom: 25px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e272e;
+  text-align: center;
+}
+
+/* ================= FORM INPUTS ================= */
+.add-role-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.add-role-wrapper input,
+.add-role-wrapper select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #dcdde1;
+  outline: none;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.add-role-wrapper input:focus,
+.add-role-wrapper select:focus {
+  border-color: #3742fa;
+  box-shadow: 0 0 5px rgba(55, 66, 250, 0.3);
+}
+
+/* ================= BUTTONS ================= */
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.actions button {
+  padding: 8px 20px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.actions .primary {
+  background-color: #3742fa;
+  color: #fff;
+}
+
+.actions .primary:hover {
+  background-color: #2f36e0;
+}
+
+.actions .secondary {
+  background-color: #dcdde1;
+  color: #2f3640;
+}
+
+.actions .secondary:hover {
+  background-color: #c1c1c1;
+}

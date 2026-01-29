@@ -1,19 +1,144 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
 
-<div class="auth-card">
-<h3>Login</h3>
-<input type="email"
-       placeholder="Email"
-       [(ngModel)]="model.email"
-       required>
+    <!-- Auth Icon -->
+    <div class="auth-icon">
+      <span>👤</span>
+    </div>
 
-<input type="password"
-       placeholder="Password"
-       [(ngModel)]="model.password"
-       required>
+    <!-- Heading -->
+    <h2 *ngIf="!showOtp">Welcome Back</h2>
+    <h2 *ngIf="showOtp">OTP Verification</h2>
 
-<button (click)="login()">Login</button>
+    <p class="subtitle" *ngIf="!showOtp">Sign in to your account</p>
+    <p class="subtitle" *ngIf="showOtp">Enter the OTP sent to your email</p>
 
-<p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <!-- LOGIN FORM -->
+    <form #loginForm="ngForm" *ngIf="!showOtp">
 
-<a routerLink="/forgot-password">Forgot Password?</a>
+      <!-- Email -->
+      <div class="input-group">
+        <label>Email</label>
+        <input
+          type="email"
+          placeholder="Enter your email"
+          [(ngModel)]="model.email"
+          name="email"
+          required
+          email
+          pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$"
+          #email="ngModel">
+      </div>
+
+      <small class="error" *ngIf="email.invalid && (email.dirty || email.touched)">
+        <ng-container *ngIf="email.errors?.['required']">Email is required</ng-container>
+        <ng-container *ngIf="email.errors?.['email'] && !email.errors?.['required']">
+          Enter valid email
+        </ng-container>
+      </small>
+
+      <!-- Password -->
+      <div class="input-group password-wrapper">
+        <label>Password</label>
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          placeholder="Enter password"
+          [(ngModel)]="model.password"
+          name="password"
+          required
+          minlength="8"
+          #password="ngModel">
+      </div>
+
+      <small class="error" *ngIf="password.invalid && (password.dirty || password.touched)">
+        <ng-container *ngIf="password.errors?.['required']">
+          Password is required
+        </ng-container>
+        <ng-container *ngIf="password.errors?.['minlength'] && !password.errors?.['required']">
+          Password must be at least 8 characters
+        </ng-container>
+      </small>
+
+      <!-- Remember + Forgot -->
+      <div class="remember-forgot">
+        <label>
+          <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe">
+          Remember me
+        </label>
+        <a routerLink="/forgot-password">Forgot Password?</a>
+      </div>
+
+      <!-- 🔴 LOCKOUT WARNING (ADDED) -->
+      <p class="lockout-warning" *ngIf="isLockedOut">
+        🔒 Your account is locked due to multiple failed attempts.  
+        Please try again after 5 minutes.
+      </p>
+
+      <!-- Login Button -->
+      <button
+        type="button"
+        (click)="login(loginForm)"
+        [disabled]="loginForm.invalid || loading || isLockedOut">
+        {{ loading ? 'Signing in...' : 'Sign In' }}
+      </button>
+
+      <div class="spinner" *ngIf="loading"></div>
+
+      <!-- Error Message -->
+      <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <p class="auth-links">
+        Don't have an account?
+        <a routerLink="/register" style="color:white">Sign up</a>
+      </p>
+
+    </form>
+
+    <!-- OTP FORM (UNCHANGED) -->
+    <form #otpForm="ngForm" *ngIf="showOtp" class="otp-form">
+
+      <div class="otp-timer">
+        OTP expires in:
+        <span [ngClass]="{ 'warning': otpTime <= 30 }">
+          {{ displayOtpTime }}
+        </span>
+      </div>
+
+      <div class="otp-inputs">
+        <input
+          type="text"
+          maxlength="1"
+          *ngFor="let digit of [0,1,2,3,4,5]; let i = index"
+          [(ngModel)]="otpDigits[i]"
+          name="otp{{i}}"
+          required
+          (keyup)="onOtpInput($event, i)"
+          #otpInput>
+      </div>
+
+      <small class="error" *ngIf="otpForm.invalid && (otpForm.dirty || otpForm.touched)">
+        OTP is required
+      </small>
+
+      <button
+        type="button"
+        (click)="verifyOtp(otpForm)"
+        [disabled]="otpForm.invalid || loading">
+        {{ loading ? 'Verifying...' : 'Verify OTP' }}
+      </button>
+
+      <p class="resend-otp">
+        Didn’t receive OTP?
+        <button
+          type="button"
+          class="resend-link"
+          (click)="resendLoginOtp()">
+          Resend OTP
+        </button>
+      </p>
+
+      <div class="spinner" *ngIf="loading"></div>
+    </form>
+
+  </div>
 </div>

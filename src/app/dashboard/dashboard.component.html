@@ -1,12 +1,139 @@
+<div class="layout">
 
-<div class="dashboard-container">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <h2 class="logo">UserPanel</h2>
 
-  <h2>Welcome to Dashboard</h2>
-  <p>You are logged in successfully 🎉</p>
+    <ul class="menu">
+      <li (click)="selectSection('dashboard')" [class.active]="activeSection === 'dashboard'">📊 Dashboard</li>
+      <li (click)="selectSection('profile')" [class.active]="activeSection === 'profile'">👤 Profile</li>
+      <li (click)="selectSection('reports')" [class.active]="activeSection === 'reports'">📄 Reports</li>
+      <li (click)="selectSection('settings')" [class.active]="activeSection === 'settings'">⚙️ Settings</li>
+    </ul>
+  </aside>
 
-  <div class="btn-group">
-    <button routerLink="/change-password">Change Password</button>
-    <button (click)="logout()">Logout</button>
+  <!-- ================= MAIN CONTENT ================= -->
+  <div class="content">
+
+    <!-- ================= TOP BAR ================= -->
+    <header class="topbar">
+  <h3>User Dashboard</h3>
+
+  <div class="profile-wrapper" #profileBox>
+
+    <!-- PROFILE ICON WITH INITIALS -->
+    <div class="profile" (click)="toggleProfileDropdown()">
+      <span>{{ (profile?.email || name || '')?.charAt?.(0)?.toUpperCase?.() }}</span>
+    </div>
+
+    <!-- PROFILE CARD -->
+    <div class="profile-card" *ngIf="showProfileDropdown">
+      <h4>Profile</h4>
+
+      <div class="profile-row">
+        <span>Name</span>
+        <strong>{{ name }}</strong>
+      </div>
+
+      <div class="profile-row">
+        <span>Email</span>
+        <strong>{{ profile?.email || '' }}</strong>
+      </div>
+
+      <div class="profile-row">
+        <span>Role</span>
+        <strong>{{ role }}</strong>
+      </div>
+
+      <div class="profile-actions">
+        <button class="secondary" routerLink="/change-password">Change Password</button>
+        <button class="danger" (click)="logout()">Logout</button>
+      </div>
+    </div>
+
   </div>
+</header>
 
+    <!-- ================= DYNAMIC MAIN BODY ================= -->
+    <section class="dashboard-container">
+
+      <!-- ================= DASHBOARD ================= -->
+      <div *ngIf="activeSection === 'dashboard'">
+        <h2>Welcome, {{ name }}</h2>
+        <p>You are logged in successfully 🎉</p>
+        <h3>Stats</h3>
+        <ul>
+          <li>Projects: {{ stats?.Projects || 5}}</li>
+          <li>Tasks: {{ stats?.Tasks || 12 }}</li>
+          <li>Notifications: {{ stats?.Notifications || 3 }}</li>
+        </ul>
+      </div>
+
+      <!-- ================= PROFILE ================= -->
+      <div *ngIf="activeSection === 'profile'">
+        <h3>Profile Info</h3>
+        <ul>
+          <li>Name: {{ profile?.Name || name }}</li>
+          <li>Email: {{ profile?.email }}</li>
+          <li>Phone: {{ profile?.phone }}</li>
+          <li>Role: {{  role }}</li>
+        </ul>
+      </div>
+
+      <!-- ================= REPORTS ================= -->
+      <div *ngIf="activeSection === 'reports'">
+        <h3>Reports</h3>
+        <ul>
+          <li *ngFor="let r of reports">
+            <strong>{{ r.Title }}</strong> ({{ r.Type }})<br />
+            Date: {{ r.Date | date:'short' }} | Status: {{ r.Status }}<br />
+            Created By: {{ r.CreatedBy }}<br />
+            Summary: {{ r.Summary }}<br />
+            Notifications Sent: {{ r.NotificationsSent ? 'Yes' : 'No' }}<br />
+            <a [href]="r.DownloadLink" target="_blank">Download</a>
+            <hr />
+          </li>
+        </ul>
+      </div>
+
+      <!-- ================= SETTINGS ================= -->
+      <div *ngIf="activeSection === 'settings'">
+        <h3>Settings</h3>
+        <ul>
+          <li>Theme: {{ settings?.Theme || 'Default' }}</li>
+          <li>
+            Notifications:
+            Email: {{ settings?.Notifications?.Email ? 'Yes' : 'No' }},
+            SMS: {{ settings?.Notifications?.SMS ? 'Yes' : 'No' }},
+            Push: {{ settings?.Notifications?.Push ? 'Yes' : 'No' }}
+          </li>
+          <li>Language: {{ settings?.Language || 'English' }}</li>
+          <li>Timezone: {{ settings?.Timezone }}</li>
+          <li>Date Format: {{ settings?.DateFormat }}</li>
+          <li>Currency: {{ settings?.Currency }}</li>
+          <li>
+            Privacy: Profile Visibility - {{ settings?.Privacy?.ProfileVisibility }},
+            Data Sharing - {{ settings?.Privacy?.DataSharing ? 'Yes' : 'No' }}
+          </li>
+          <li>Two-Factor Auth: {{ settings?.TwoFactorAuth ? 'Enabled' : 'Disabled' }}</li>
+          <li>Profile Completion: {{ settings?.ProfileCompletion }}%</li>
+        </ul>
+      </div>
+
+    </section>
+
+  </div>
+</div>
+
+<!-- ================= 🔔 REFRESH TOKEN POPUP ================= -->
+<div class="popup-overlay" *ngIf="showPopup">
+  <div class="popup-card">
+    <h3>Session Expiring</h3>
+    <p>Your session will expire in 2 minutes.</p>
+    <p>Click refresh to stay logged in.</p>
+
+    <div class="popup-actions">
+      <button class="refresh" (click)="onPopupOk()">Refresh Session</button>
+    </div>
+  </div>
 </div>
