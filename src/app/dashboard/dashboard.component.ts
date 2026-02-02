@@ -32,7 +32,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // UI
   showProfileDropdown = false;
-  showPopup = false;
 
   // 🔹 PROFILE REF (for outside click)
   @ViewChild('profileBox') profileBox!: ElementRef;
@@ -45,6 +44,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Timer
   private refreshTimeout: any;
+  private idleLogoutTimeout: any;
+
+  private idleWarningTime = 5 * 60 * 1000; // 5 min idle before warning
+  private idleLogoutDelay = 1 * 60 * 1000; // 1 min after warning
 
   constructor(
     private auth: AuthService,
@@ -64,6 +67,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.refreshTimeout) clearTimeout(this.refreshTimeout);
+    if (this.idleLogoutTimeout) clearTimeout(this.idleLogoutTimeout);
   }
 
   // ================= USER FROM TOKEN =================
@@ -109,48 +113,65 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   logout(): void {
     if (this.refreshTimeout) clearTimeout(this.refreshTimeout);
+    if (this.idleLogoutTimeout) clearTimeout(this.idleLogoutTimeout);
     this.tokenService.removeTokens();
     this.router.navigate(['/login']);
   }
 
-  // ================= REFRESH TOKEN FLOW =================
+  // ================= REFRESH TOKEN FLOW WITH SWEETALERT =================
   private scheduleTokenRefresh(): void {
     const expiryTime = this.tokenService.getTokenExpiry();
     if (!expiryTime) return;
 
     const now = Date.now();
-    const popupTime = Math.max(expiryTime - now - 120000, 0);
+    const popupTime = Math.max(expiryTime - now - 120000, 0); // 2 min before expiry
 
     if (this.refreshTimeout) clearTimeout(this.refreshTimeout);
 
-    this.refreshTimeout = setTimeout(() => {
-      this.showPopup = true;
-    }, popupTime);
+    // Show SweetAlert popup
+    this.refreshTimeout = setTimeout(() => this.showIdleWarning(), popupTime);
   }
-onPopupOk(): void {
 
-  this.auth.refreshToken().subscribe({
-    next: (res: any) => {
-      this.tokenService.setToken(res.token);
-      this.tokenService.setRefreshToken(res.refreshToken);
+  private showIdleWarning(): void {
+    Swal.fire({
+      title: 'Session Expiring',
+      text: 'Your session will expire in 2 minutes. Click OK to stay logged in.',
+      icon: 'warning',
+      confirmButtonText: 'OK',
+      allowOutsideClick: false,
+      allowEscapeKey: false
+    }).then(() => {
+      this.refreshToken();
+    });
 
-      this.showPopup = false;
+    // Automatic logout if user ignores
+    this.idleLogoutTimeout = setTimeout(() => {
+      Swal.fire('Logged Out', 'You were inactive for too long.', 'info').then(() => {
+        this.logout();
+      });
+    }, this.idleLogoutDelay);
+  }
 
-      // allow interceptor to pick up new token
-      setTimeout(() => {
-        this.loadUserFromToken();
+  private refreshToken(): void {
+    this.auth.refreshToken().subscribe({
+      next: (res: any) => {
+        this.tokenService.setToken(res.token);
+        this.tokenService.setRefreshToken(res.refreshToken);
+
+        // Reschedule next refresh
         this.scheduleTokenRefresh();
-      }, 0);
 
-      Swal.fire('Success', 'Session refreshed', 'success');
-    },
-    error: () => {
-      Swal.fire('Session Expired', 'Please login again', 'error');
-      this.logout();
-    }
-  });
-}
+        // Reload user info
+        this.loadUserFromToken();
 
+        Swal.fire('Success', 'Session refreshed', 'success');
+      },
+      error: () => {
+        Swal.fire('Session Expired', 'Please login again', 'error');
+        this.logout();
+      }
+    });
+  }
 
   // ================= API DATA =================
   loadDashboard() {

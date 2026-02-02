@@ -6,18 +6,17 @@
       <span>👤</span>
     </div>
 
-    <!-- Heading -->
     <h2>Create Account</h2>
 
     <form #registerForm="ngForm">
 
       <!-- Full Name -->
       <div class="input-group">
-        <label>Full Name</label>
+        <label>Name <span class="required">*</span></label>
         <span class="icon">👤</span>
         <input
           type="text"
-          placeholder="Enter your full name"
+          placeholder="Enter your Name"
           [(ngModel)]="model.name"
           name="name"
           required
@@ -26,14 +25,14 @@
           #name="ngModel">
       </div>
       <small class="error" *ngIf="name.invalid && (name.dirty || name.touched)">
-        <ng-container *ngIf="name.errors?.['required']">Name is required</ng-container>
-        <ng-container *ngIf="name.errors?.['minlength'] && !name.errors?.['required']">Name must be at least 3 characters</ng-container>
-        <ng-container *ngIf="name.errors?.['pattern'] && !name.errors?.['required']">Name should contain only alphabets and single spaces</ng-container>
+        <span *ngIf="name.errors?.['required']">Name is required</span>
+        <span *ngIf="name.errors?.['minlength']">Minimum 3 characters</span>
+        <span *ngIf="name.errors?.['pattern']">Only alphabets & single spaces</span>
       </small>
 
       <!-- Email -->
       <div class="input-group">
-        <label>Email </label>
+        <label>Email <span class="required">*</span></label>
         <span class="icon">&#64;</span>
         <input
           type="email"
@@ -46,17 +45,17 @@
           #email="ngModel">
       </div>
       <small class="error" *ngIf="email.invalid && (email.dirty || email.touched)">
-        <ng-container *ngIf="email.errors?.['required']">Email is required</ng-container>
-        <ng-container *ngIf="email.errors?.['email'] && !email.errors?.['required']">Enter valid email</ng-container>
+        <span *ngIf="email.errors?.['required']">Email is required</span>
+        <span *ngIf="email.errors?.['email']">Invalid email format</span>
       </small>
 
       <!-- Mobile -->
       <div class="input-group">
-        <label>Mobile Number</label>
+        <label>Mobile Number <span class="required">*</span></label>
         <span class="icon">📞</span>
         <input
           type="tel"
-          placeholder="+919876543210"
+          placeholder="Enter your mobile number"
           [(ngModel)]="model.mobile"
           name="mobile"
           required
@@ -65,15 +64,13 @@
           #mobile="ngModel">
       </div>
       <small class="error" *ngIf="mobile.invalid && (mobile.dirty || mobile.touched)">
-        <ng-container *ngIf="mobile.errors?.['required']">Mobile number is required</ng-container>
-        <ng-container *ngIf="mobile.touched && mobile.value && mobile.value.match('[^0-9]')">Only numbers are allowed</ng-container>
-        <ng-container *ngIf="mobile.touched && mobile.value && mobile.value.length !== 10 && !mobile.value.match('[^0-9]')">Mobile number must be 10 digits</ng-container>
-        <ng-container *ngIf="mobile.touched && mobile.value && mobile.value.length === 10 && !mobile.value.match('^[6-9]')">Mobile number must start with 6–9</ng-container>
+        <span *ngIf="mobile.errors?.['required']">Mobile number is required</span>
+        <span *ngIf="mobile.errors?.['pattern']">Must start with 6–9 and be 10 digits</span>
       </small>
 
       <!-- Password -->
       <div class="input-group password-wrapper">
-        <label>Password</label>
+        <label>Password <span class="required">*</span></label>
         <span class="icon">🔒</span>
         <input
           [type]="showPassword ? 'text' : 'password'"
@@ -82,40 +79,42 @@
           name="password"
           required
           minlength="8"
-          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$"
           #password="ngModel">
-        <span class="toggle" (click)="togglePassword()">👁️</span>
       </div>
       <small class="error" *ngIf="password.invalid && (password.dirty || password.touched)">
-        <ng-container *ngIf="password.errors?.['required']">Password is required</ng-container>
-        <ng-container *ngIf="password.errors?.['minlength'] && !password.errors?.['required']">Password must be at least 8 characters</ng-container>
-        <ng-container *ngIf="password.errors?.['pattern'] && !password.errors?.['required']">Must include uppercase, lowercase, number & special character</ng-container>
+        <span *ngIf="password.errors?.['required']">Password is required</span>
+        <span *ngIf="password.errors?.['pattern']">
+          Must contain upper, lower, number & special char
+        </span>
       </small>
 
       <!-- Confirm Password -->
       <div class="input-group password-wrapper">
-        <label>Confirm Password</label>
+        <label>Confirm Password <span class="required">*</span></label>
         <span class="icon">🔒</span>
         <input
           [type]="showConfirmPassword ? 'text' : 'password'"
-          placeholder="Confirm Password"
+          placeholder="Enter Confirm password"
           [(ngModel)]="model.confirmPassword"
           name="confirmPassword"
-          #confirmPassword="ngModel"
           required
           minlength="8"
-        />
-        <span class="toggle" (click)="toggleConfirmPassword()">👁️</span>
+          #confirmPassword="ngModel">
       </div>
-      <small class="error" *ngIf="(confirmPassword.dirty || confirmPassword.touched)">
-        <ng-container *ngIf="confirmPassword.errors?.['required']">Confirm Password is required</ng-container>
-        <ng-container *ngIf="!confirmPassword.errors?.['required'] && model.confirmPassword && model.password !== model.confirmPassword">Passwords do not match</ng-container>
+      <small class="error" *ngIf="confirmPassword.touched">
+        <span *ngIf="confirmPassword.errors?.['required']">
+          Confirm password is required
+        </span>
+        <span *ngIf="model.password !== model.confirmPassword">
+          Passwords do not match
+        </span>
       </small>
 
-      <!-- Role selection for first user only -->
+      <!-- Role -->
       <div class="input-group" *ngIf="model.role !== 'User'">
-        <label>Role</label>
-        <select [(ngModel)]="model.role" name="role">
+        <label>Role <span class="required">*</span></label>
+        <select [(ngModel)]="model.role" name="role" required>
           <option value="">-- Select Role --</option>
           <option value="Admin">Admin</option>
           <option value="User">User</option>
@@ -133,7 +132,6 @@
       <!-- Backend Error -->
       <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
 
-      <!-- Login Link -->
       <p class="auth-links">
         Already have an account?
         <a routerLink="/login">Login</a>

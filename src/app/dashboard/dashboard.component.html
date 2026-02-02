@@ -23,7 +23,7 @@
 
     <!-- PROFILE ICON WITH INITIALS -->
     <div class="profile" (click)="toggleProfileDropdown()">
-      <span>{{ (profile?.email || name || '')?.charAt?.(0)?.toUpperCase?.() }}</span>
+<span>{{ (profile?.Name || name || profile?.email || '')?.charAt(0)?.toUpperCase() }}</span>
     </div>
 
     <!-- PROFILE CARD -->
@@ -35,10 +35,7 @@
         <strong>{{ name }}</strong>
       </div>
 
-      <div class="profile-row">
-        <span>Email</span>
-        <strong>{{ profile?.email || '' }}</strong>
-      </div>
+     
 
       <div class="profile-row">
         <span>Role</span>
@@ -125,15 +122,4 @@
   </div>
 </div>
 
-<!-- ================= 🔔 REFRESH TOKEN POPUP ================= -->
-<div class="popup-overlay" *ngIf="showPopup">
-  <div class="popup-card">
-    <h3>Session Expiring</h3>
-    <p>Your session will expire in 2 minutes.</p>
-    <p>Click refresh to stay logged in.</p>
 
-    <div class="popup-actions">
-      <button class="refresh" (click)="onPopupOk()">Refresh Session</button>
-    </div>
-  </div>
-</div>

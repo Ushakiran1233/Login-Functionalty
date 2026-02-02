@@ -2,60 +2,101 @@
 
   <!-- ================= SIDEBAR ================= -->
   <aside class="sidebar">
-    <h2 class="logo">AdminPanel</h2>
+    <h2 class="logo">RoadResQ</h2>
 
     <ul class="menu">
-      <li [class.active]="activeSection === 'dashboard'" (click)="navigateTo('dashboard')">📊 Dashboard</li>
-      <li [class.active]="activeSection === 'users'" (click)="navigateTo('users')">👥 Users</li>
-      <li [class.active]="activeSection === 'roles'" (click)="navigateTo('roles')">🛡️ Roles</li>
-      <li [class.active]="activeSection === 'reports'" (click)="navigateTo('reports')">📄 Reports</li>
-      <li [class.active]="activeSection === 'settings'" (click)="navigateTo('settings')">⚙️ Settings</li>
+
+      <!-- ================= DASHBOARD ================= -->
+      <li
+        (click)="toggleSection('dashboard')"
+        [class.active]="activeSection === 'dashboard'"
+        [class.open]="activeSection === 'dashboard'">
+
+        📊 Dashboard
+        <span class="arrow" [class.rotate]="showSubmenu">▶</span>
+
+        <!-- ================= SECURITY ACCESS ================= -->
+        <ul *ngIf="showSubmenu && hasSecurityAccess">
+
+          <li
+            (click)="toggleSubSection('securityAccess'); $event.stopPropagation()"
+            [class.active]="activeSubSection === 'securityAccess'"
+            [class.open]="activeSubSection === 'securityAccess'">
+
+            🔒 Security Access
+            <span
+              class="arrow"
+              [class.rotate]="activeSubSection === 'securityAccess'">
+              ▶
+            </span>
+
+            <ul>
+
+              <li
+                *ngIf="canAccess('ViewUsers')"
+                (click)="navigateTo('users'); $event.stopPropagation()"
+                [class.active]="isActive('users')">
+                👥 Users
+              </li>
+
+              <li
+                *ngIf="canAccess('ViewRoles')"
+                (click)="navigateTo('roles'); $event.stopPropagation()"
+                [class.active]="isActive('roles')">
+                🛡️ Roles
+              </li>
+
+            </ul>
+          </li>
+
+        </ul>
+      </li>
+
+      <!-- ================= REPORTS ================= -->
+      <li
+        (click)="navigateTo('reports')"
+        [class.active]="isActive('reports')">
+        📄 Reports
+      </li>
+
+      <!-- ================= SETTINGS ================= -->
+      <li
+        (click)="navigateTo('settings')"
+        [class.active]="isActive('settings')">
+        ⚙️ Settings
+      </li>
+
     </ul>
   </aside>
 
   <!-- ================= MAIN CONTENT ================= -->
   <div class="content">
 
-    <!-- ===== TOP BAR ===== -->
+    <!-- ================= TOP BAR ================= -->
     <header class="topbar">
       <h3>Admin Dashboard</h3>
+      <p *ngIf="adminName">Welcome, {{ adminName }}!</p>
+
       <div class="profile-wrapper" #profileBox>
         <div class="profile" (click)="toggleProfile()">
-          <span>{{ (adminName || 'A').charAt(0).toUpperCase() }}</span>
+          {{ adminName.charAt(0) }}
         </div>
+
         <div class="profile-card" *ngIf="showProfile">
           <h4>Profile</h4>
-          <div class="profile-row">
-            <span>Name</span>
-            <strong>{{ adminName || 'Admin' }}</strong>
-          </div>
-          <div class="profile-row">
-            <span>Role</span>
-            <strong>{{ adminRole }}</strong>
-          </div>
-          <div class="profile-actions">
-            <button class="secondary" routerLink="/change-password">Change Password</button>
-            <button class="danger" (click)="logout()">Logout</button>
-          </div>
+
+          <p><strong>Name:</strong> {{ adminName }}</p>
+          <p><strong>Role:</strong> {{ adminRole }}</p>
+
+          <button routerLink="/change-password">Change Password</button>
+          <button (click)="logout()">Logout</button>
         </div>
       </div>
     </header>
 
     <!-- ================= PAGE BODY ================= -->
     <main class="page-body">
-
-      <!-- ===== DASHBOARD ===== -->
-      <div class="welcome-box" *ngIf="activeSection === 'dashboard'">
-        <h2>Welcome back, {{ adminName || 'Admin' }} 👋</h2>
-        <p>
-          You are logged in as <strong>{{ adminRole }}</strong>.
-          Manage users, roles, reports, and settings from the menu.
-        </p>
-      </div>
-
-      <!-- ===== CHILD ROUTES ===== -->
-      <router-outlet *ngIf="activeSection !== 'dashboard'"></router-outlet>
-
+      <router-outlet></router-outlet>
     </main>
 
   </div>

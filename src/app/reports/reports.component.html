@@ -4,17 +4,7 @@
   <!-- Totals -->
   <div *ngIf="reports; else noReports">
     <p><strong>Total Users:</strong> {{ reports.totalUsers }}</p>
-    <p><strong>Users with Mobile:</strong> {{ reports.usersWithMobile }}</p>
-
-    <!-- Users by Role -->
-    <div *ngIf="reports.usersByRole && getRoles().length > 0">
-      <h3>Users by Role:</h3>
-      <ul>
-        <li *ngFor="let role of getRoles()">
-          {{ role }}: {{ reports.usersByRole[role] }}
-        </li>
-      </ul>
-    </div>
+   
 
     <!-- Recent Users -->
     <div *ngIf="reports.recentUsers?.length">

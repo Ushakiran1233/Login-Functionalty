@@ -6,13 +6,13 @@
   justify-content: center;
   align-items: center;
 
-  background-image: url('https://plus.unsplash.com/premium_photo-1661331604078-add96f12ab49');
+  background-image: url('/assets/istockphoto-1043122528-612x612.jpg.jpeg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
 
-/* ================= DARK OVERLAY (STRONGER CONTRAST) ================= */
+/* ================= DARK OVERLAY (HIGH CONTRAST) ================= */
 .auth-wrapper {
   width: 100%;
   height: 100vh;
@@ -20,10 +20,13 @@
   justify-content: center;
   align-items: center;
 
-  /* darker + subtle gradient */
+  /* 🔥 increased contrast overlay */
   background:
-    radial-gradient(circle at center, rgba(0,0,0,0.55), rgba(0,0,0,0.75)),
-    rgba(0, 0, 0, 0.65);
+    radial-gradient(
+      circle at center,
+      rgba(0, 0, 0, 0.65),
+      rgba(0, 0, 0, 0.88)
+    );
 }
 
 /* ================= CARD ================= */
@@ -39,7 +42,7 @@
 
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.45);
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85);
 
   color: #ffffff;
   display: flex;
@@ -105,7 +108,8 @@
 }
 
 /* ================= INPUT ================= */
-.input-group input {
+.input-group input,
+.input-group select {
   width: 100%;
   height: 46px;
   padding: 10px 14px 10px 44px;
@@ -114,7 +118,7 @@
   border: 1px solid rgba(0, 0, 0, 0.25);
 
   background: rgba(255, 255, 255, 0.92);
-  color: #000000;              /* 🔥 black input text */
+  color: #000000;
   font-size: 14px;
   font-weight: 500;
 
@@ -125,7 +129,8 @@
   color: #6b7280;
 }
 
-.input-group input:focus {
+.input-group input:focus,
+.input-group select:focus {
   outline: none;
   border-color: #6366f1;
   background: #ffffff;
@@ -185,7 +190,6 @@ button:disabled {
   font-size: 12px;
   font-weight: 600;
 
-  /* 🔥 dark professional error */
   color: #7f1d1d;
   background: rgba(254, 226, 226, 0.95);
   border-radius: 6px;
@@ -223,4 +227,13 @@ button:disabled {
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* ================= REQUIRED ASTERISK ================= */
+.required {
+  color: red;
+  font-weight: bold;
+  font-size: 18px;   /* ⬅ size increased */
+  margin-left: 4px;
+  line-height: 1;
 }

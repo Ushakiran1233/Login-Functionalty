@@ -9,8 +9,8 @@ export class AdminService {
 
   private authApi = 'https://localhost:7168/api/auth';
   private adminApi = 'https://localhost:7168/api/admin/reports';
-private userapi='https://localhost:7168/api/admin/reports/users';
-
+private userapi='https://localhost:7168/api/admin/reports/Addusers';
+private permissionurl='https://localhost:7168/api/admin/reports/users/current/permissions';
   constructor(
     private http: HttpClient,
     private tokenService: TokenService
@@ -61,6 +61,15 @@ getCurrentUser(): Observable<any> {
       { role } // ✅ MATCHES BACKEND
     );
   }
+private permissions: string[] = [];
+
+setPermissions(p: string[]) {
+  this.permissions = p;
+}
+
+getPermissions(): string[] {
+  return this.permissions;
+}
 
   addRole(roleName: string) {
     return this.http.post(
@@ -95,7 +104,9 @@ getRoles() {
     }
   );
 }
-
+ getUserPermissions(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.permissionurl}`);
+  }
   // ================= REFRESH TOKEN =================
   refreshToken(
     accessToken: string,

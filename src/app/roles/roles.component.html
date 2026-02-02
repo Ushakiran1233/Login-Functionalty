@@ -1,7 +1,6 @@
 <div class="card add-role-card">
   <h3>Roles</h3>
 
-  <!-- Search/filter -->
   <div class="add-role-wrapper">
     <input
       type="text"
@@ -16,7 +15,7 @@
   </div>
 </div>
 
-<!-- Roles Table -->
+<!-- ================= ROLES TABLE ================= -->
 <table class="table table-hover user-table">
   <thead>
     <tr>
@@ -24,7 +23,7 @@
       <th>Role Name</th>
       <th>Description</th>
       <th>Status</th>
-      <th>Actions</th>
+      <th style="width:160px">Actions</th>
     </tr>
   </thead>
 
@@ -42,14 +41,10 @@
         </span>
       </td>
       <td class="actions">
-        <button
-          class="primary"
-          (click)="editRole(role)">
+        <button class="btn btn-sm btn-primary" (click)="editRole(role)">
           ✏️ Edit
         </button>
-        <button
-          class="danger"
-          (click)="deleteRole(role.roleId)">
+        <button class="btn btn-sm btn-danger" (click)="deleteRole(role.roleId)">
           🗑️ Delete
         </button>
       </td>
@@ -57,47 +52,121 @@
   </tbody>
 </table>
 
-<!-- Add/Edit Role Modal -->
+<!-- ================= ADD / EDIT ROLE MODAL ================= -->
 <div class="modal-overlay" *ngIf="showRoleForm">
-  <div class="modal-card">
-    <h3>{{ roleFormData.roleId ? 'Edit Role' : 'Add Role' }}</h3>
-    <span class="required-note">* Required</span>
+  <div class="modal-card large permission-modal">
 
-    <!-- Role Name -->
-    <div class="form-group">
-      <label>Role Name *</label>
-      <input
-        type="text"
-        class="form-control"
-        [(ngModel)]="roleFormData.name"
-        placeholder="Enter Role Name" />
+    <!-- HEADER -->
+    <div class="modal-header">
+      <h3>{{ editingRoleId ? 'Edit Role' : 'Add Role' }}</h3>
+      <span class="required-note">* Required</span>
     </div>
 
-    <!-- Description -->
-    <div class="form-group">
-      <label>Description</label>
-      <input
-        type="text"
-        class="form-control"
-        [(ngModel)]="roleFormData.description"
-        placeholder="Enter Description" />
+    <!-- BODY -->
+    <div class="modal-body">
+
+      <div class="row">
+
+        <!-- ADD ROLE → TEXTBOX -->
+        <div class="form-group" *ngIf="!editingRoleId">
+          <label>Role Name *</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="roleFormData.name"
+            name="roleName"
+            placeholder="Enter new role name" />
+        </div>
+
+        <!-- EDIT ROLE → DROPDOWN -->
+        <div class="form-group" *ngIf="editingRoleId">
+          <label>Role Name *</label>
+          <select
+            class="form-control"
+            [(ngModel)]="roleFormData.roleId"
+            name="roleId">
+
+            <option value="">-- Select Role --</option>
+
+            <option
+              *ngFor="let r of roles"
+              [ngValue]="r.roleId">
+              {{ r.name }}
+            </option>
+
+          </select>
+        </div>
+
+        <!-- STATUS -->
+        <div class="form-group">
+          <label>Status</label>
+          <select
+            class="form-control"
+            [(ngModel)]="roleFormData.isActive"
+            name="status">
+            <option [ngValue]="true">Active</option>
+            <option [ngValue]="false">Inactive</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="form-group full">
+        <label>Description</label>
+        <textarea
+          class="form-control"
+          rows="3"
+          [(ngModel)]="roleFormData.description"
+          name="description">
+        </textarea>
+      </div>
+
+      <!-- PERMISSIONS (EDIT ONLY) -->
+      <div
+        class="permission-box"
+        *ngIf="editingRoleId && permissionGroups?.length">
+
+        <h4>Assign Permissions</h4>
+
+        <div
+          class="permission-group"
+          *ngFor="let group of permissionGroups">
+
+          <div
+            class="group-header"
+            (click)="group.expanded = !group.expanded">
+            <span>{{ group.groupName }}</span>
+            <span>{{ group.expanded ? '▾' : '▸' }}</span>
+          </div>
+
+          <div class="group-items" *ngIf="group.expanded">
+
+            <label
+              class="permission-item"
+              *ngFor="let perm of group.permissions">
+
+              <input
+                type="checkbox"
+                [(ngModel)]="perm.selected"
+                [ngModelOptions]="{ standalone: true }" />
+
+              <span>{{ perm.activityName }}</span>
+            </label>
+
+          </div>
+        </div>
+
+      </div>
+
     </div>
 
-    <!-- Status -->
-    <div class="form-group">
-      <label>Status</label>
-      <select
-        class="form-control"
-        [(ngModel)]="roleFormData.isActive">
-        <option [ngValue]="true">Active</option>
-        <option [ngValue]="false">Inactive</option>
-      </select>
-    </div>
-
-    <!-- Actions -->
-    <div class="actions">
+    <!-- FOOTER -->
+    <div class="modal-footer actions">
       <button class="btn btn-danger" (click)="cancelEdit()">❌ Cancel</button>
       <button class="btn btn-success" (click)="saveRole()">✔ Save</button>
     </div>
+
   </div>
 </div>
+

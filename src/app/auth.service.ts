@@ -5,7 +5,8 @@ import { RefreshTokenRequest } from './refresh-token-response';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-
+public permissions: string[] = []; // ← Add this
+  public role: string = '';  
   private api = 'https://localhost:7168/api/auth';
 
   constructor(private http: HttpClient) {}
@@ -13,6 +14,9 @@ export class AuthService {
   // ================= REGISTER =================
   register(data: any) {
     return this.http.post(`${this.api}/register`, data);
+  }
+  canAccess(permission: string): boolean {
+    return this.permissions.includes(permission);
   }
 
   // ================= LOGIN =================

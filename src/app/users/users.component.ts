@@ -46,12 +46,12 @@ export class UsersComponent implements OnInit {
           id: u.id,
           name: u.name,
           email: u.email,
-          mobileno: u.phoneNumber || u.mobileno,
-          role: typeof u.role === 'string'
-            ? u.role
-            : u.roles?.[0] || '',
+          mobileno: u.mobileno || u.phoneNumber || '',
+          // ✅ FIX: ALWAYS STORE ROLE AS STRING
+          role: Array.isArray(u.roles) ? u.roles[0] || '' : u.role || '',
           isActive: u.isActive
         }));
+
         this.filteredUsers = [...this.users];
       },
       error: () => Swal.fire('Error', 'Failed to load users', 'error')
@@ -100,86 +100,95 @@ export class UsersComponent implements OnInit {
   // ================= EDIT =================
   editUser(user: any): void {
     this.submitted = false;
+
+    // ✅ FIX: ROLE MUST BE STRING FOR DROPDOWN BINDING
     this.user = {
       id: user.id,
       name: user.name,
       email: user.email,
       mobileNumber: user.mobileno,
-      role: user.role,
-      isActive: user.isActive
+      role: user.role || '',
+      isActive: user.isActive,
+      password: '',
+      confirmPassword: ''
     };
+
     this.showUserForm = true;
   }
 
   // ================= SAVE =================
   saveUser(): void {
-  this.submitted = true;
+    this.submitted = true;
 
-  // ================= COMMON VALIDATION =================
-  if (
-    !this.user.name ||
-    !this.isValidEmail(this.user.email) ||
-    !this.isValidMobile(this.user.mobileNumber) ||
-    !this.user.role
-  ) {
-    Swal.fire('Error', 'Please fix validation errors', 'error');
-    return;
-  }
-
-  // ================= ADD USER =================
-  if (!this.user.id) {
-
-    if (!this.isValidPassword(this.user.password)) {
-      Swal.fire('Error', 'Password must be at least 6 characters', 'error');
+    // ================= COMMON VALIDATION =================
+    if (
+      !this.user.name ||
+      !this.isValidEmail(this.user.email) ||
+      !this.isValidMobile(this.user.mobileNumber) ||
+      !this.user.role
+    ) {
+      Swal.fire('Error', 'Please fix validation errors', 'error');
       return;
     }
 
-    if (this.user.password !== this.user.confirmPassword) {
-      Swal.fire('Error', 'Passwords do not match', 'error');
-      return;
+    // ================= ADD USER =================
+    if (!this.user.id) {
+
+      if (!this.isValidPassword(this.user.password)) {
+        Swal.fire('Error', 'Password must be at least 8 characters', 'error');
+        return;
+      }
+
+      if (this.user.password !== this.user.confirmPassword) {
+        Swal.fire('Error', 'Passwords do not match', 'error');
+        return;
+      }
+
+      const payload = {
+        name: this.user.name,
+        email: this.user.email,
+        mobileNumber: this.user.mobileNumber,
+        password: this.user.password,
+        confirmPassword: this.user.confirmPassword,
+        role: this.user.role
+      };
+
+      this.adminService.addUser(payload).subscribe({
+        next: () => {
+          Swal.fire('Success', 'User added successfully', 'success');
+          this.showUserForm = false;
+          this.submitted = false;
+          this.loadUsers();
+        },
+        error: () => Swal.fire('Error', 'Failed to add user', 'error')
+      });
+
     }
 
-    const payload = {
-      name: this.user.name,
-      email: this.user.email,
-      mobileNumber: this.user.mobileNumber,
-      password: this.user.password,
-      confirmPassword: this.user.confirmPassword,
-      role: this.user.role
-    };
+    // ================= UPDATE USER =================
+    else {
+      const payload = {
+        name: this.user.name,
+        email: this.user.email,
+        mobileNumber: this.user.mobileNumber,
+        role: this.user.role,
+        isActive: this.user.isActive
+      };
 
-    this.adminService.addUser(payload).subscribe({
-      next: () => {
-        Swal.fire('Success', 'User added successfully', 'success');
-        this.showUserForm = false;
-        this.submitted = false;
-        this.loadUsers();
-      },
-      error: () => Swal.fire('Error', 'Failed to add user', 'error')
-    });
-
+      this.adminService.updateUser(this.user.id, payload).subscribe({
+        next: () => {
+          Swal.fire('Success', 'User updated successfully', 'success');
+          this.showUserForm = false;
+          this.submitted = false;
+          this.loadUsers();
+        },
+        error: (err) => {
+          console.error(err);
+          Swal.fire('Error', 'Failed to update user', 'error');
+        }
+      });
+    }
   }
-
-  // ================= UPDATE USER =================
-  else {
-    const payload = {
-      name: this.user.name,
-      mobileNumber: this.user.mobileNumber,
-      role: this.user.role,
-      isActive: this.user.isActive
-    };
-
-    this.adminService.updateUser(this.user.id, payload).subscribe({
-      next: () => {
-        Swal.fire('Success', 'User updated successfully', 'success');
-        this.showUserForm = false;
-        this.submitted = false;
-        this.loadUsers();
-      },
-      error: () => Swal.fire('Error', 'Failed to update user', 'error')
-    });
-  }
-}
 
   // ================= CANCEL =================
   cancel(): void {
@@ -219,6 +228,26 @@ export class UsersComponent implements OnInit {
   }
 
   isValidPassword(password: string): boolean {
-    return !!password && password.length >= 6;
+    return !!password && password.length >= 8;
   }
+  get isUserFormValid(): boolean {
+  if (!this.user) return false;
+
+  // Check required fields
+  const hasName = !!this.user.name?.trim();
+  const hasEmail = this.isValidEmail(this.user.email);
+  const hasMobile = this.isValidMobile(this.user.mobileNumber);
+  const hasRole = !!this.user.role?.trim();
+
+  // If adding new user, check passwords
+  let passwordsValid = true;
+  if (!this.user.id) {
+    passwordsValid =
+      this.isValidPassword(this.user.password) &&
+      this.user.password === this.user.confirmPassword;
+  }
+
+  return hasName && hasEmail && hasMobile && hasRole && passwordsValid;
+}
+
 }

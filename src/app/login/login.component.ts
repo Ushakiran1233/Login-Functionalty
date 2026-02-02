@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode'; // ✅ fixed import
 import Swal from 'sweetalert2';
 import { AuthService } from '../auth.service';
 
@@ -27,7 +27,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   otpTime = 900;
   timerInterval: any;
-  displayOtpTime = '15:00';
+  displayOtpTime = '5:00';
 
   constructor(
     private auth: AuthService,
@@ -62,7 +62,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   resetOtp() {
     this.otpDigits = ['', '', '', '', '', ''];
     this.otpTime = 900;
-    this.displayOtpTime = '15:00';
+    this.displayOtpTime = '5:00';
     this.clearOtpTimer();
     this.isLockedOut = false;
     this.errorMessage = '';
@@ -129,10 +129,16 @@ export class LoginComponent implements OnInit, OnDestroy {
         localStorage.setItem('token', res.token);
         localStorage.setItem('refreshToken', res.refreshToken);
 
-        const decoded: any = jwtDecode(res.token);
+        const decoded: any = jwtDecode(res.token); // ✅ decode JWT
 
         console.log('JWT Payload:', decoded); // 🔍 DEBUG
 
+        // ================= FIX: Store permissions for Security Access =================
+        const permissions = decoded['permissions'] || [];
+        this.auth.permissions = permissions; // ← ensures menu works
+        localStorage.setItem('permissions', JSON.stringify(permissions)); // optional
+
+        // ================= FIX: Decode role =================
         const roleClaim =
           decoded['role'] ||
           decoded['roles'] ||
@@ -147,6 +153,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
 
         role = role.toLowerCase().trim();
+        this.auth.role = role; // optional: store in AuthService
 
         console.log('Resolved Role:', role); // 🔍 DEBUG
 
@@ -168,7 +175,29 @@ export class LoginComponent implements OnInit, OnDestroy {
       }
     });
   }
-resendLoginOtp() { if (!this.model.email) { Swal.fire('Error', 'Please enter your email first', 'error'); return; } this.loading = true; this.errorMessage = ''; this.resetOtp(); this.auth.resendLoginOtp(this.model.email).subscribe({ next: () => { this.loading = false; this.startOtpTimer(); Swal.fire( 'OTP Sent', 'A new OTP has been sent to your email.', 'success' ); }, error: (err: any) => { this.loading = false; this.errorMessage = err?.error?.message || 'Failed to resend OTP'; Swal.fire('Error', this.errorMessage, 'error'); } }); }
+
+  resendLoginOtp() { 
+    if (!this.model.email) { 
+      Swal.fire('Error', 'Please enter your email first', 'error'); 
+      return; 
+    } 
+    this.loading = true; 
+    this.errorMessage = ''; 
+    this.resetOtp(); 
+    this.auth.resendLoginOtp(this.model.email).subscribe({ 
+      next: () => { 
+        this.loading = false; 
+        this.startOtpTimer(); 
+        Swal.fire('OTP Sent', 'A new OTP has been sent to your email.', 'success'); 
+      }, 
+      error: (err: any) => { 
+        this.loading = false; 
+        this.errorMessage = err?.error?.message || 'Failed to resend OTP'; 
+        Swal.fire('Error', this.errorMessage, 'error'); 
+      } 
+    }); 
+  }
+
   // ================= OTP TIMER =================
   startOtpTimer() {
     this.clearOtpTimer();

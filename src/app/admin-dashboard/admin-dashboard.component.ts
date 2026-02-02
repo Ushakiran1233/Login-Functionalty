@@ -7,11 +7,11 @@ import {
   HostListener
 } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
-import Swal from 'sweetalert2';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
+import Swal from 'sweetalert2';
 
 import { AdminService } from '../services/admin.service';
 import { TokenService } from '../services/token.service';
@@ -29,12 +29,19 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   adminName = '';
   adminRole = 'Admin';
 
-  activeSection: 'dashboard' | 'users' | 'roles' | 'reports' | 'settings' = 'dashboard';
+  activeSection: string = 'dashboard';
+  activeSubSection: string = '';
+
   showProfile = false;
+  showSubmenu = false;
+
+  userPermissions: string[] = [];
+  hasSecurityAccess = false;
 
   reports?: AdminReports;
 
   private refreshTimeout: any;
+  private autoLogoutTime = 10 * 60 * 1000;
 
   @ViewChild('profileBox') profileBox!: ElementRef;
 
@@ -55,19 +62,38 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.loadProfile();
     this.loadAdminReports();
     this.scheduleTokenRefresh();
+    this.scheduleAutoLogout();
 
-    // Update active section automatically on route change
-this.router.events.pipe(
-  filter(event => event instanceof NavigationEnd)
-).subscribe((event: any) => {
-  const url = event.urlAfterRedirects;
+    // 🔹 Load permissions
+    this.adminService.getUserPermissions().subscribe({
+      next: (perms: string[]) => {
+        this.userPermissions = perms || [];
+        this.hasSecurityAccess =
+          this.userPermissions.includes('ViewSecurityAccess');
+      },
+      error: () => {
+        this.userPermissions = [];
+        this.hasSecurityAccess = false;
+      }
+    });
 
-  if (url.includes('users')) this.activeSection = 'users';
-  else if (url.includes('roles')) this.activeSection = 'roles';
-  else this.activeSection = 'dashboard';
-});
+    // 🔹 Route sync (NO submenu forcing)
+   this.router.events
+  .pipe(filter(event => event instanceof NavigationEnd))
+  .subscribe((event: any) => {
+    const url = event.urlAfterRedirects;
+
+    if (url.includes('/reports')) {
+      this.activeSection = 'reports';
+    } else if (url.includes('/settings')) {
+      this.activeSection = 'settings';
+    } else {
+      this.activeSection = 'dashboard';
+    }
+  });
 
   }
+  
 
   ngOnDestroy(): void {
     if (this.refreshTimeout) {
@@ -75,36 +101,77 @@ this.router.events.pipe(
     }
   }
 
-  // ================= NAVIGATION =================
-  navigateTo(
-  section: 'dashboard' | 'users' | 'roles' | 'reports' | 'settings'
-): void {
-  this.activeSection = section;
-
-  switch (section) {
-    case 'dashboard':
-      this.router.navigate(['/admin-dashboard']);
-      break;
-
-    case 'users':
-      this.router.navigate(['/admin-dashboard', 'users']);
-      break;
-
-    case 'roles':
-      this.router.navigate(['/admin-dashboard', 'roles']);
-      break;
-
-    case 'reports':
-      // ✅ SECTION ONLY — DO NOT NAVIGATE
-      this.router.navigate(['/admin-dashboard', 'reports']);
-      break;
-
-    case 'settings':
-      this.router.navigate(['/admin-dashboard', 'settings']);
-      break;
+  // ================= SIDEBAR =================
+ toggleSection(section: string): void {
+  if (section !== 'dashboard') {
+    this.activeSection = section;
+    this.showSubmenu = false;
+    this.activeSubSection = '';
+    this.navigateTo(section);
+    return;
   }
+
+  this.activeSection = 'dashboard';
+
+  if (!this.hasSecurityAccess) {
+    this.showSubmenu = false;
+    return;
+  }
+
+  // 🔥 ONLY toggle submenu – do NOT touch activeSubSection
+  this.showSubmenu = !this.showSubmenu;
+
+  console.log('DASHBOARD CLICK 👉', {
+    activeSection: this.activeSection,
+    showSubmenu: this.showSubmenu,
+    hasSecurityAccess: this.hasSecurityAccess,
+    activeSubSection: this.activeSubSection
+  });
 }
 
+
+
+  toggleSubSection(sub: string): void {
+  if (!this.hasSecurityAccess) return;
+
+  this.activeSubSection =
+    this.activeSubSection === sub ? '' : sub;
+
+  console.log('SUBMENU CLICK 👉', this.activeSubSection);
+}
+
+
+  navigateTo(section: string): void {
+    switch (section) {
+      case 'dashboard':
+        this.router.navigate(['/admin-dashboard']);
+        break;
+      case 'users':
+        this.router.navigate(['/admin-dashboard/users']);
+        break;
+      case 'roles':
+        this.router.navigate(['/admin-dashboard/roles']);
+        break;
+      case 'reports':
+        this.router.navigate(['/admin-dashboard/reports']);
+        break;
+      case 'settings':
+        this.router.navigate(['/admin-dashboard/settings']);
+        break;
+    }
+  }
+
+  // ================= HELPERS =================
+  canAccess(permission: string): boolean {
+    return this.userPermissions.includes(permission);
+  }
+
+  isActive(section: string): boolean {
+    return (
+      this.activeSection === section ||
+      this.activeSubSection === section
+    );
+  }
 
   // ================= PROFILE =================
   toggleProfile(): void {
@@ -127,61 +194,47 @@ this.router.events.pipe(
     this.router.navigate(['/login']);
   }
 
-  // ================= LOAD PROFILE =================
+  // ================= DATA =================
   loadProfile(): void {
-  this.adminService.getCurrentUser().subscribe({
-    next: (user: any) => {
-      if (user) {
-        this.adminName = user.name || 'Admin';
-        this.adminRole = user.role || 'Admin'; // role is STRING
-      }
-    },
-    error: (err) => {
-      console.error('Failed to load profile', err);
-      this.router.navigate(['/login']);
-    }
-  });
-}
-
-
-  // ================= LOAD REPORTS =================
-  loadAdminReports(): void {
-    this.adminService.getAdminReports().subscribe({
-      next: (res) => (this.reports = res),
-      error: (err) => console.error(err)
+    this.adminService.getCurrentUser().subscribe({
+      next: (user: any) => {
+        this.adminName = user?.name || 'Admin';
+        this.adminRole = user?.role || 'Admin';
+      },
+      error: () => this.router.navigate(['/login'])
     });
   }
 
-  // ================= TOKEN REFRESH =================
+  loadAdminReports(): void {
+    this.adminService.getAdminReports().subscribe({
+      next: res => (this.reports = res),
+      error: err => console.error(err)
+    });
+  }
+
+  // ================= TOKEN =================
   private scheduleTokenRefresh(): void {
     const token = this.tokenService.getToken();
     if (!token) return;
 
     try {
       const decoded: any = this.tokenService.decodeToken(token);
-      const expiryTime = (decoded.exp || 0) * 1000;
-      const popupTime = Math.max(expiryTime - Date.now() - 120000, 0);
-
-      if (this.refreshTimeout) {
-        clearTimeout(this.refreshTimeout);
-      }
+      const expiry = decoded.exp * 1000;
+      const popupTime = Math.max(expiry - Date.now() - 120000, 0);
 
       this.refreshTimeout = setTimeout(
         () => this.showRefreshPopup(),
         popupTime
       );
-    } catch {
-      console.error('Token refresh scheduling failed');
-    }
+    } catch {}
   }
 
   private showRefreshPopup(): void {
     Swal.fire({
       title: 'Session Expiring',
-      text: 'Click OK to continue your session',
+      text: 'Click OK to continue',
       icon: 'warning',
-      confirmButtonText: 'OK',
-      allowOutsideClick: false
+      confirmButtonText: 'OK'
     }).then(() => this.refreshToken());
   }
 
@@ -198,26 +251,20 @@ this.router.events.pipe(
       next: (res: any) => {
         this.tokenService.setToken(res.token);
         this.tokenService.setRefreshToken(res.refreshToken);
-
-        this.loadProfile();
-        this.loadAdminReports();
         this.scheduleTokenRefresh();
-
-        Swal.fire('Success', 'Session refreshed!', 'success');
       },
-      error: () => {
-        Swal.fire('Session Expired', 'Please login again', 'error');
-        this.logout();
-      }
+      error: () => this.logout()
     });
   }
 
-  // ================= EXTRA METHODS =================
-  goToUsers(): void {
-    this.router.navigate(['/admin-dashboard', 'users']); // keep it nested
+  private scheduleAutoLogout(): void {
+    this.refreshTimeout = setTimeout(() => {
+      Swal.fire(
+        'Logged Out',
+        'Inactive too long',
+        'info'
+      ).then(() => this.logout());
+    }, this.autoLogoutTime);
   }
-
-  goToRoles(): void {
-    this.router.navigate(['/admin-dashboard', 'roles']); // keep it nested
-  }
+  
 }
