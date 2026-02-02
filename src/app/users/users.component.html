@@ -72,7 +72,7 @@
         type="email"
         class="form-control"
         [(ngModel)]="user.email"
-        [readonly]="user.id"
+       
         required />
       <small class="error" *ngIf="submitted && !isValidEmail(user.email)">
         Enter a valid email
@@ -101,7 +101,7 @@
           class="form-control"
           [(ngModel)]="user.password" />
         <small class="error" *ngIf="submitted && !isValidPassword(user.password)">
-          Password must be at least 6 characters
+          Password must be at least 8 characters
         </small>
       </div>
 

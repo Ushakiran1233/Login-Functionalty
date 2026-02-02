@@ -113,71 +113,73 @@ export class UsersComponent implements OnInit {
 
   // ================= SAVE =================
   saveUser(): void {
-    this.submitted = true;
+  this.submitted = true;
 
-    // COMMON VALIDATIONS
-    if (
-      !this.user.name ||
-      !this.isValidEmail(this.user.email) ||
-      !this.isValidMobile(this.user.mobileNumber) ||
-      !this.user.role
-    ) {
-      Swal.fire('Error', 'Please fix validation errors', 'error');
+  // ================= COMMON VALIDATION =================
+  if (
+    !this.user.name ||
+    !this.isValidEmail(this.user.email) ||
+    !this.isValidMobile(this.user.mobileNumber) ||
+    !this.user.role
+  ) {
+    Swal.fire('Error', 'Please fix validation errors', 'error');
+    return;
+  }
+
+  // ================= ADD USER =================
+  if (!this.user.id) {
+
+    if (!this.isValidPassword(this.user.password)) {
+      Swal.fire('Error', 'Password must be at least 6 characters', 'error');
       return;
     }
 
-    // ADD USER
-    if (!this.user.id) {
-
-      if (!this.isValidPassword(this.user.password)) {
-        Swal.fire('Error', 'Password must be at least 6 characters', 'error');
-        return;
-      }
-
-      if (this.user.password !== this.user.confirmPassword) {
-        Swal.fire('Error', 'Passwords do not match', 'error');
-        return;
-      }
-
-      const payload = {
-        name: this.user.name,
-        email: this.user.email,
-        mobileNumber: this.user.mobileNumber,
-        password: this.user.password,
-        role: this.user.role
-      };
-
-      this.adminService.addUser(payload).subscribe({
-        next: () => {
-          Swal.fire('Success', 'User added successfully', 'success');
-          this.showUserForm = false;
-          this.submitted = false;
-          this.loadUsers();
-        },
-        error: () => Swal.fire('Error', 'Failed to add user', 'error')
-      });
-
+    if (this.user.password !== this.user.confirmPassword) {
+      Swal.fire('Error', 'Passwords do not match', 'error');
+      return;
     }
-    // UPDATE USER
-    else {
-      const payload = {
-        name: this.user.name,
-        mobileNumber: this.user.mobileNumber,
-        role: this.user.role,
-        isActive: this.user.isActive
-      };
 
-      this.adminService.updateUser(this.user.id, payload).subscribe({
-        next: () => {
-          Swal.fire('Success', 'User updated successfully', 'success');
-          this.showUserForm = false;
-          this.submitted = false;
-          this.loadUsers();
-        },
-        error: () => Swal.fire('Error', 'Failed to update user', 'error')
-      });
-    }
+    const payload = {
+      name: this.user.name,
+      email: this.user.email,
+      mobileNumber: this.user.mobileNumber,
+      password: this.user.password,
+      confirmPassword: this.user.confirmPassword,
+      role: this.user.role
+    };
+
+    this.adminService.addUser(payload).subscribe({
+      next: () => {
+        Swal.fire('Success', 'User added successfully', 'success');
+        this.showUserForm = false;
+        this.submitted = false;
+        this.loadUsers();
+      },
+      error: () => Swal.fire('Error', 'Failed to add user', 'error')
+    });
+
   }
+
+  // ================= UPDATE USER =================
+  else {
+    const payload = {
+      name: this.user.name,
+      mobileNumber: this.user.mobileNumber,
+      role: this.user.role,
+      isActive: this.user.isActive
+    };
+
+    this.adminService.updateUser(this.user.id, payload).subscribe({
+      next: () => {
+        Swal.fire('Success', 'User updated successfully', 'success');
+        this.showUserForm = false;
+        this.submitted = false;
+        this.loadUsers();
+      },
+      error: () => Swal.fire('Error', 'Failed to update user', 'error')
+    });
+  }
+}
 
   // ================= CANCEL =================
   cancel(): void {

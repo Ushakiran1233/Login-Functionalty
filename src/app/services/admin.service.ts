@@ -10,6 +10,7 @@ export class AdminService {
   private authApi = 'https://localhost:7168/api/auth';
   private adminApi = 'https://localhost:7168/api/admin/reports';
 private userapi='https://localhost:7168/api/admin/reports/users';
+
   constructor(
     private http: HttpClient,
     private tokenService: TokenService
@@ -101,7 +102,7 @@ getRoles() {
     refreshToken: string
   ): Observable<{ token: string; refreshToken: string; expiresIn: number }> {
     return this.http.post<{ token: string; refreshToken: string; expiresIn: number }>(
-      `${this.authApi}/refresh-token`,   // ✅ CORRECT URL
+      `${this.authApi}/refresh-token`,   
       { accessToken, refreshToken }
     );
   }
