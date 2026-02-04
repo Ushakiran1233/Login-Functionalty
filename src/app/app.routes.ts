@@ -34,16 +34,16 @@ export const routes: Routes = [
 
       // 🛡️ ADMIN DASHBOARD
       {
-        path: 'admin-dashboard',
-        component: AdminDashboardComponent,
-        data: { role: 'Admin' },
-        children: [
-          { path: '', redirectTo: 'users', pathMatch: 'full' }, // default page for admin
-          { path: 'users', component: UsersComponent, data: { role: 'Admin' } },
-          { path: 'roles', component: RolesComponent, data: { role: 'Admin' } },
-          { path: 'reports', component: ReportsComponent, data: { role: 'Admin' } },
-          { path: 'settings', component: SettingsComponent, data: { role: 'Admin' } }
-        ]
+         path: 'admin-dashboard',
+  component: AdminDashboardComponent,
+  data: { role: 'Admin' },
+  children: [
+    // ✅ dashboard landing
+    { path: 'users', component: UsersComponent },
+    { path: 'roles', component: RolesComponent },
+    { path: 'reports', component: ReportsComponent },
+    { path: 'settings', component: SettingsComponent }
+  ]
       },
 
       // 🔑 CHANGE PASSWORD

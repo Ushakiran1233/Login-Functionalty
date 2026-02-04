@@ -6,17 +6,16 @@ import {
   ViewChild,
   HostListener
 } from '@angular/core';
-import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { Router, RouterOutlet, NavigationEnd, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
 import Swal from 'sweetalert2';
 
 import { AdminService } from '../services/admin.service';
 import { TokenService } from '../services/token.service';
 import { AdminReports } from '../services/admin.models.model';
-
+import { AuthService } from '../auth.service';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -25,6 +24,8 @@ import { AdminReports } from '../services/admin.models.model';
   styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements OnInit, OnDestroy {
+
+  showWelcome = false;
 
   adminName = '';
   adminRole = 'Admin';
@@ -40,6 +41,16 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   reports?: AdminReports;
 
+  // ================== CHANGE PASSWORD ==================
+  showChangePassword = false;
+  model: any = {
+    CurrentPassword: '',
+    NewPassword: '',
+    ConfirmPassword: ''
+  };
+  successMessage = '';
+  errorMessage = '';
+
   private refreshTimeout: any;
   private autoLogoutTime = 10 * 60 * 1000;
 
@@ -48,28 +59,33 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   constructor(
     private adminService: AdminService,
     private tokenService: TokenService,
-    private router: Router
-  ) {}
+    private router: Router,private auth: AuthService,
+  ) {
+    const nav = this.router.getCurrentNavigation();
+    this.showWelcome = nav?.extras?.state?.['showWelcome'] === true;
+  }
 
   // ================= INIT =================
   ngOnInit(): void {
+
     const token = this.tokenService.getToken();
     if (!token) {
       this.router.navigate(['/login']);
       return;
     }
 
+    this.adminName = localStorage.getItem('adminName') || 'Admin';
+    this.showWelcome = history.state?.showWelcome === true;
+
     this.loadProfile();
     this.loadAdminReports();
     this.scheduleTokenRefresh();
     this.scheduleAutoLogout();
 
-    // 🔹 Load permissions
     this.adminService.getUserPermissions().subscribe({
       next: (perms: string[]) => {
-        this.userPermissions = perms || [];
-        this.hasSecurityAccess =
-          this.userPermissions.includes('ViewSecurityAccess');
+        this.userPermissions = (perms || []).map(p => p.toLowerCase());
+        this.hasSecurityAccess = this.userPermissions.includes('viewsecurityaccess');
       },
       error: () => {
         this.userPermissions = [];
@@ -77,23 +93,15 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       }
     });
 
-    // 🔹 Route sync (NO submenu forcing)
-   this.router.events
-  .pipe(filter(event => event instanceof NavigationEnd))
-  .subscribe((event: any) => {
-    const url = event.urlAfterRedirects;
-
-    if (url.includes('/reports')) {
-      this.activeSection = 'reports';
-    } else if (url.includes('/settings')) {
-      this.activeSection = 'settings';
-    } else {
-      this.activeSection = 'dashboard';
-    }
-  });
-
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        const url = event.urlAfterRedirects;
+        if (url.includes('/reports')) this.activeSection = 'reports';
+        else if (url.includes('/settings')) this.activeSection = 'settings';
+        else this.activeSection = 'dashboard';
+      });
   }
-  
 
   ngOnDestroy(): void {
     if (this.refreshTimeout) {
@@ -102,75 +110,46 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   // ================= SIDEBAR =================
- toggleSection(section: string): void {
-  if (section !== 'dashboard') {
-    this.activeSection = section;
-    this.showSubmenu = false;
-    this.activeSubSection = '';
-    this.navigateTo(section);
-    return;
+  toggleSection(section: string): void {
+
+    if (section !== 'dashboard') {
+      this.activeSection = section;
+      this.showSubmenu = false;
+      this.activeSubSection = '';
+      this.navigateTo(section);
+      return;
+    }
+
+    this.activeSection = 'dashboard';
+    if (!this.hasSecurityAccess) {
+      this.showSubmenu = false;
+      return;
+    }
+    this.showSubmenu = !this.showSubmenu;
   }
-
-  this.activeSection = 'dashboard';
-
-  if (!this.hasSecurityAccess) {
-    this.showSubmenu = false;
-    return;
-  }
-
-  // 🔥 ONLY toggle submenu – do NOT touch activeSubSection
-  this.showSubmenu = !this.showSubmenu;
-
-  console.log('DASHBOARD CLICK 👉', {
-    activeSection: this.activeSection,
-    showSubmenu: this.showSubmenu,
-    hasSecurityAccess: this.hasSecurityAccess,
-    activeSubSection: this.activeSubSection
-  });
-}
-
-
 
   toggleSubSection(sub: string): void {
-  if (!this.hasSecurityAccess) return;
-
-  this.activeSubSection =
-    this.activeSubSection === sub ? '' : sub;
-
-  console.log('SUBMENU CLICK 👉', this.activeSubSection);
-}
-
+    if (!this.hasSecurityAccess) return;
+    this.activeSubSection = this.activeSubSection === sub ? '' : sub;
+  }
 
   navigateTo(section: string): void {
     switch (section) {
-      case 'dashboard':
-        this.router.navigate(['/admin-dashboard']);
-        break;
-      case 'users':
-        this.router.navigate(['/admin-dashboard/users']);
-        break;
-      case 'roles':
-        this.router.navigate(['/admin-dashboard/roles']);
-        break;
-      case 'reports':
-        this.router.navigate(['/admin-dashboard/reports']);
-        break;
-      case 'settings':
-        this.router.navigate(['/admin-dashboard/settings']);
-        break;
+      case 'dashboard': this.router.navigate(['/admin-dashboard']); break;
+      case 'users': this.router.navigate(['/admin-dashboard/users']); break;
+      case 'roles': this.router.navigate(['/admin-dashboard/roles']); break;
+      case 'reports': this.router.navigate(['/admin-dashboard/reports']); break;
+      case 'settings': this.router.navigate(['/admin-dashboard/settings']); break;
     }
   }
 
   // ================= HELPERS =================
   canAccess(permission: string): boolean {
-    return this.userPermissions.includes(permission);
+    return this.userPermissions.includes(permission.toLowerCase());
   }
 
   isActive(section: string): boolean {
-    return (
-      this.activeSection === section ||
-      this.activeSubSection === section
-    );
+    return this.activeSection === section || this.activeSubSection === section;
   }
 
   // ================= PROFILE =================
@@ -222,10 +201,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       const expiry = decoded.exp * 1000;
       const popupTime = Math.max(expiry - Date.now() - 120000, 0);
 
-      this.refreshTimeout = setTimeout(
-        () => this.showRefreshPopup(),
-        popupTime
-      );
+      this.refreshTimeout = setTimeout(() => this.showRefreshPopup(), popupTime);
     } catch {}
   }
 
@@ -259,12 +235,52 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   private scheduleAutoLogout(): void {
     this.refreshTimeout = setTimeout(() => {
-      Swal.fire(
-        'Logged Out',
-        'Inactive too long',
-        'info'
-      ).then(() => this.logout());
+      Swal.fire('Logged Out', 'Inactive too long', 'info').then(() => this.logout());
     }, this.autoLogoutTime);
   }
-  
+
+  // ================= CHANGE PASSWORD =================
+  openChangePassword(): void {
+    this.showChangePassword = true;
+    this.clearChangePasswordForm();
+  }
+
+  closeChangePassword(): void {
+    this.showChangePassword = false;
+  }
+
+  changePassword(): void {
+    this.successMessage = '';
+    this.errorMessage = '';
+
+    if (!this.model.CurrentPassword || !this.model.NewPassword || !this.model.ConfirmPassword) {
+      this.errorMessage = 'All fields are required.';
+      return;
+    }
+
+    if (this.model.NewPassword !== this.model.ConfirmPassword) {
+      this.errorMessage = 'Passwords do not match.';
+      return;
+    }
+
+    this.auth.changePassword(this.model).subscribe({
+      next: () => {
+        this.successMessage = 'Password changed successfully!';
+        this.model.CurrentPassword = '';
+        this.model.NewPassword = '';
+        this.model.ConfirmPassword = '';
+      },
+      error: (err: { error: { message: string; }; }) => {
+        this.errorMessage = err?.error?.message || 'Failed to change password.';
+      }
+    });
+  }
+
+  private clearChangePasswordForm(): void {
+    this.model.CurrentPassword = '';
+    this.model.NewPassword = '';
+    this.model.ConfirmPassword = '';
+    this.successMessage = '';
+    this.errorMessage = '';
+  }
 }

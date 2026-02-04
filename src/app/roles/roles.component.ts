@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
 
+/* ===== ROLE MODEL ===== */
 interface Role {
   roleId: number;
   name: string;
@@ -11,14 +12,12 @@ interface Role {
   isActive: boolean;
 }
 
-/* ===== Permission Models ===== */
+/* ===== PERMISSION MODELS ===== */
 interface Permission {
   activityId: number;
-  activityDesc: string;
-  activityName: string; 
-  selected?: boolean;   // ✅ ADD THIS
+  activityName: string;
+  selected?: boolean;
 }
-
 
 interface PermissionGroup {
   groupName: string;
@@ -35,24 +34,20 @@ interface PermissionGroup {
 })
 export class RolesComponent implements OnInit {
 
-  /* ================= ROLES ================= */
   roles: Role[] = [];
   filteredRoles: Role[] = [];
   roleSearch = '';
+
+  selectedPermissions: number[] = [];
 
   showRoleForm = false;
   roleFormData: Role = this.resetRole();
   editingRoleId: number | null = null;
 
-  /* ================= PERMISSIONS ================= */
   permissionGroups: PermissionGroup[] = [];
 
-  // ✅ permission codes (strings)
-  assignedRights = new Set<string>();
-
-  /* ================= API ================= */
   private apiUrl = 'https://localhost:7168/api/Roles';
-  private permissiongroup = 'https://localhost:7168/api/admin/reports/groups';
+  private adminUrl = 'https://localhost:7168/api/admin/reports';
 
   constructor(private http: HttpClient) {}
 
@@ -61,7 +56,7 @@ export class RolesComponent implements OnInit {
     this.loadPermissionGroups();
   }
 
-  /* ================= LOAD ROLES ================= */
+  // ================= LOAD ROLES =================
   loadRoles(): void {
     this.http.get<Role[]>(this.apiUrl).subscribe({
       next: res => {
@@ -72,26 +67,21 @@ export class RolesComponent implements OnInit {
     });
   }
 
-  /* ================= LOAD PERMISSION GROUPS ================= */
-  loadPermissionGroups(): void {
-  this.http.get<PermissionGroup[]>(this.permissiongroup).subscribe({
-    next: res => {
-      this.permissionGroups = res.map(g => ({
-        ...g,
-        expanded: false,
-        permissions: g.permissions.map(p => ({
-          ...p,
-          selected: false   // ✅ important
-        }))
-      }));
-    },
-    error: () =>
-      Swal.fire('Error', 'Failed to load permissions', 'error')
-  });
-}
+  // ================= LOAD PERMISSION GROUPS =================
+  loadPermissionGroups(callback?: () => void): void {
+    this.http.get<PermissionGroup[]>(`${this.adminUrl}/groups`).subscribe({
+      next: res => {
+        this.permissionGroups = res.map(g => ({
+          ...g,
+          expanded: false
+        }));
+        if (callback) callback();
+      },
+      error: () => Swal.fire('Error', 'Failed to load permissions', 'error')
+    });
+  }
 
-
-  /* ================= SEARCH ================= */
+  // ================= FILTER =================
   filterRoles(): void {
     const search = this.roleSearch.toLowerCase();
     this.filteredRoles = this.roles.filter(r =>
@@ -100,108 +90,108 @@ export class RolesComponent implements OnInit {
     );
   }
 
-  /* ================= ADD ROLE ================= */
+  // ================= ADD ROLE =================
   addRole(): void {
     this.editingRoleId = null;
     this.roleFormData = this.resetRole();
-    this.assignedRights.clear();
+    this.selectedPermissions = [];
+    this.resetPermissions(); // ✅ IMPORTANT FIX
     this.showRoleForm = true;
   }
 
-  /* ================= EDIT ROLE ================= */
+  // ================= EDIT ROLE =================
   editRole(role: Role): void {
     this.editingRoleId = role.roleId;
     this.roleFormData = { ...role };
+    this.selectedPermissions = [];
     this.showRoleForm = true;
-    this.loadRolePermissions(role.roleId);
+
+    this.loadPermissionGroups(() => {
+      this.loadRolePermissions(role.roleId);
+    });
   }
 
-  /* ================= LOAD ROLE PERMISSIONS ================= */
+  // ================= LOAD ROLE PERMISSIONS =================
   loadRolePermissions(roleId: number): void {
-  this.http
-    .get<string[]>(`${this.apiUrl}/${roleId}/permissions`)
-    .subscribe({
-      next: res => {
+    this.http.get<number[]>(`${this.apiUrl}/${roleId}/permissions`).subscribe({
+      next: perms => {
+        this.selectedPermissions = perms;
+
+        // ✅ Sync checkbox UI
         this.permissionGroups.forEach(group => {
           group.permissions.forEach(perm => {
-            perm.selected = res.includes(perm.activityDesc);
+            perm.selected = this.selectedPermissions.includes(perm.activityId);
           });
         });
       },
       error: () =>
         Swal.fire('Error', 'Failed to load role permissions', 'error')
     });
-}
-
-  /* ================= PERMISSION CHANGE ================= */
-  onPermissionChange(permissionCode: string, checked: boolean): void {
-    if (checked) {
-      this.assignedRights.add(permissionCode);
-    } else {
-      this.assignedRights.delete(permissionCode);
-    }
   }
 
-  /* ================= CHECK PERMISSION ================= */
-  hasPermission(permissionCode: string): boolean {
-    return this.assignedRights.has(permissionCode);
-  }
-
-  /* ================= CANCEL ================= */
   cancelEdit(): void {
     this.editingRoleId = null;
     this.roleFormData = this.resetRole();
-    this.assignedRights.clear();
+    this.selectedPermissions = [];
+    this.resetPermissions();
     this.showRoleForm = false;
   }
 
-  /* ================= SAVE ROLE ================= */
+  // ================= SAVE ROLE (ADD + UPDATE) =================
   saveRole(): void {
-
-  // ADD ROLE
-  if (!this.editingRoleId) {
     if (!this.roleFormData.name) {
       Swal.fire('Error', 'Role Name is required', 'error');
       return;
     }
 
-    this.http.post(this.apiUrl, this.roleFormData).subscribe({
+    // ✅ COLLECT permissions from checkbox state (FINAL FIX)
+    const permissionIds: number[] = [];
+    this.permissionGroups.forEach(group =>
+      group.permissions.forEach(p => {
+        if (p.selected) {
+          permissionIds.push(p.activityId);
+        }
+      })
+    );
+
+    const payload = {
+      name: this.roleFormData.name,
+      description: this.roleFormData.description,
+      isActive: this.roleFormData.isActive,
+      permissions: permissionIds
+    };
+
+    // ===== ADD ROLE =====
+    if (this.editingRoleId === null) {
+      this.http.post(this.apiUrl, payload).subscribe({
+        next: () => {
+          Swal.fire('Success', 'Role created successfully', 'success');
+          this.cancelEdit();
+          this.loadRoles();
+        },
+        error: err => {
+          console.error(err);
+          Swal.fire('Error', 'Failed to create role', 'error');
+        }
+      });
+      return;
+    }
+
+    // ===== UPDATE ROLE =====
+    this.http.put(`${this.apiUrl}/${this.editingRoleId}`, payload).subscribe({
       next: () => {
-        Swal.fire('Success', 'Role added successfully', 'success');
+        Swal.fire('Success', 'Role updated successfully', 'success');
         this.cancelEdit();
         this.loadRoles();
       },
-      error: () => Swal.fire('Error', 'Failed to add role', 'error')
+      error: err => {
+        console.error(err);
+        Swal.fire('Error', 'Failed to update role', 'error');
+      }
     });
-
-    return;
   }
 
-  // EDIT ROLE → SAVE PERMISSIONS
-  const permissions: string[] = [];
-
-  this.permissionGroups.forEach(g =>
-    g.permissions.forEach(p => {
-      if (p.selected) permissions.push(p.activityDesc);
-    })
-  );
-
-  const payload = {
-    roleId: this.roleFormData.roleId,
-    permissions
-  };
-
-  this.http.post(`${this.apiUrl}/permissions`, payload).subscribe({
-    next: () => {
-      Swal.fire('Success', 'Permissions updated', 'success');
-      this.cancelEdit();
-      this.loadRoles();
-    },
-    error: () => Swal.fire('Error', 'Failed to update permissions', 'error')
-  });
-}
-
-  /* ================= DELETE ROLE ================= */
+  // ================= DELETE ROLE =================
   deleteRole(roleId: number): void {
     Swal.fire({
       title: 'Are you sure?',
@@ -224,7 +214,13 @@ export class RolesComponent implements OnInit {
     });
   }
 
-  /* ================= RESET ================= */
+  // ================= HELPERS =================
+  resetPermissions(): void {
+    this.permissionGroups.forEach(group =>
+      group.permissions.forEach(p => (p.selected = false))
+    );
+  }
+
   resetRole(): Role {
     return {
       roleId: 0,

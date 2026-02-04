@@ -1,31 +1,53 @@
 <div class="reports-section">
   <h2>Reports</h2>
 
-  <!-- Totals -->
   <div *ngIf="reports; else noReports">
-    <p><strong>Total Users:</strong> {{ reports.totalUsers }}</p>
-   
 
-    <!-- Recent Users -->
-    <div *ngIf="reports.recentUsers?.length">
-      <h3>Recent Users:</h3>
-      <table border="1" cellpadding="5">
+    <!-- ===== SUMMARY ===== -->
+    <div class="summary">
+      <p><strong>Total Users:</strong> {{ reports.totalUsers }}</p>
+      <p><strong>Active Users:</strong> {{ reports.activeUsers }}</p>
+      <p><strong>Inactive Users:</strong> {{ reports.inactiveUsers }}</p>
+      <p><strong>Total Roles:</strong> {{ reports.totalRoles }}</p>
+    </div>
+
+    <hr />
+
+    <!-- ===== USERS TABLE ===== -->
+    <div *ngIf="reports.users?.length; else noUsers">
+      <h3>Users Details</h3>
+
+      <table border="1" cellpadding="8" cellspacing="0">
         <thead>
           <tr>
-            <th>Name</th>
+            <th>#</th>
+            <th>User Name</th>
             <th>Email</th>
             <th>Phone</th>
+            <th>Status</th>
           </tr>
         </thead>
+
         <tbody>
-          <tr *ngFor="let u of reports.recentUsers">
+          <tr *ngFor="let u of reports.users; let i = index">
+            <td>{{ i + 1 }}</td>
             <td>{{ u.userName }}</td>
             <td>{{ u.email }}</td>
             <td>{{ u.phoneNumber || '-' }}</td>
+            <td>
+              <span [style.color]="u.isActive ? 'green' : 'red'">
+                {{ u.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <ng-template #noUsers>
+      <p>No users found.</p>
+    </ng-template>
+
   </div>
 
   <ng-template #noReports>

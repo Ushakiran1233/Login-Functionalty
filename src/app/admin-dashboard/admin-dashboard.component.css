@@ -1,243 +1,183 @@
-/* ================= GLOBAL LAYOUT ================= */
-* {
-  box-sizing: border-box;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f6f9;
-  color: #333;
-}
-
+/* ===== LAYOUT ===== */
 .layout {
   display: flex;
   height: 100vh;
-  width: 100%;
-  overflow: hidden;
+  font-family: Arial, sans-serif;
 }
 
-/* ================= SIDEBAR ================= */
+/* ===== SIDEBAR ===== */
 .sidebar {
   width: 220px;
-  background-color: #1e1e2f;
+  background: #1f2937;
   color: #fff;
-  display: flex;
-  flex-direction: column;
-  padding: 20px 0;
-  overflow-y: auto;
+  padding: 20px;
 }
-
 .sidebar .logo {
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 30px;
 }
-
-/* ================= MENU ================= */
-.sidebar .menu {
+.sidebar .logo img {
+  width: 50px;
+  border-radius: 50%;
+}
+.sidebar ul.menu {
   list-style: none;
   padding: 0;
-  margin: 0;
 }
-
-.sidebar .menu > li {
-  padding: 12px 20px;
+.sidebar ul.menu li {
+  padding: 10px;
   cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.3s ease;
 }
-
-.sidebar .menu > li:hover {
-  background-color: #343454;
+.sidebar ul.menu li.active {
+  background: #2563eb;
+  border-radius: 4px;
 }
-
-.sidebar .menu > li.active {
-  background-color: #5252a8;
+.sidebar .arrow {
+  float: right;
+  transition: 0.3s;
 }
-
-/* ================= SUB MENU ================= */
-.sidebar .menu ul {
+.sidebar .arrow.rotate {
+  transform: rotate(90deg);
+}
+.sidebar ul.menu ul {
   list-style: none;
-  padding: 5px 0 5px 15px;
-  margin: 0;
-  display: none;
-  background-color: #2a2a40;
-}
-
-/* 🔥 THIS IS THE FIX */
-.sidebar .menu li.open > ul {
+  padding-left: 15px;
   display: block;
 }
 
-.sidebar .menu ul li {
-  padding: 8px 20px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.sidebar .menu ul li:hover {
-  background-color: #3c3c5e;
-}
-
-.sidebar .menu ul li.active {
-  background-color: #6a6acb;
-}
-
-/* ================= MAIN CONTENT ================= */
+/* ===== MAIN ===== */
 .content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  background: #f4f6f9;
 }
 
-/* ================= TOPBAR ================= */
+/* ===== TOPBAR ===== */
 .topbar {
-  height: 60px;
-  background-color: #ffffff;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  z-index: 10;
+  align-items: center;
+  background: #1f2937;
+  color: #fff;
+  padding: 15px 20px;
 }
-
-.topbar h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: #333;
-}
-
-/* ================= PROFILE ================= */
 .profile-wrapper {
   position: relative;
 }
-
 .profile {
-  width: 40px;
-  height: 40px;
-  background-color: #5252a8;
+  width: 35px;
+  height: 35px;
+  background: #2563eb;
   border-radius: 50%;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
+  line-height: 35px;
   cursor: pointer;
-  font-weight: bold;
 }
-
 .profile-card {
   position: absolute;
   right: 0;
-  top: 50px;
-  width: 220px;
-  background-color: #fff;
-  color: #333;
+  top: 45px;
+  background: #fff;
+  color: #000;
+  padding: 10px;
   border-radius: 6px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  padding: 15px;
-  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  min-width: 180px;
 }
-
-.profile-card h4 {
-  margin: 0 0 10px 0;
-  font-size: 1.1rem;
-}
-
-.profile-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.profile-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-.profile-actions button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
+.profile-card button {
+  width: 100%;
+  margin-top: 5px;
+  padding: 6px;
   cursor: pointer;
 }
 
-.profile-actions .secondary {
-  background-color: #5252a8;
-  color: #fff;
-}
-
-.profile-actions .danger {
-  background-color: #e74c3c;
-  color: #fff;
-}
-
-/* ================= PAGE BODY ================= */
+/* ===== PAGE BODY ===== */
 .page-body {
-  flex: 1;
+  padding: 20px;
   overflow-y: auto;
-  padding: 20px;
 }
 
-.welcome-box {
-  background-color: #fff;
+/* ===== MODAL ===== */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.change-password-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.change-password-card {
+  background: #fff;
+  padding: 25px;
   border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  margin-bottom: 20px;
+  width: 400px;
+  max-width: 95%;
 }
-
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    left: -220px;
-    top: 0;
-    height: 100%;
-    transition: left 0.3s ease;
-    z-index: 200;
-  }
-
-  .sidebar.active {
-    left: 0;
-  }
-
-  .content {
-    margin-left: 0;
-  }
+.change-password-card h2 {
+  margin-bottom: 5px;
 }
-/* ================= ARROW ANIMATION ================= */
-.arrow {
-  float: right;
-  transition: transform 0.25s ease-in-out;
-  font-size: 0.8rem;
-  margin-top: 4px;
-  opacity: 0.8;
+.change-password-card .subtitle {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 15px;
 }
-
-/* rotate when open */
-.arrow.rotate {
-  transform: rotate(90deg);
+.form-group {
+  margin-bottom: 15px;
 }
-
-/* smoother submenu reveal */
-.sidebar .menu ul {
-  list-style: none;
-  padding-left: 15px;
-  margin-top: 5px;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
-
-/* expand when active */
-.sidebar .menu li.active > ul {
-  max-height: 500px;
+button {
+  padding: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+button:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
+}
+small.error {
+  color: red;
+  font-size: 0.75rem;
+}
+.alert.success {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+.alert.error {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+.back-to-login {
+  margin-top: 10px;
+  text-align: center;
+}
+.back-to-login a {
+  color: #2563eb;
+  text-decoration: none;
 }

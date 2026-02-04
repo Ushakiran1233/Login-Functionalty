@@ -2,80 +2,46 @@
 
   <!-- ================= SIDEBAR ================= -->
   <aside class="sidebar">
-    <h2 class="logo">RoadResQ</h2>
+    <div class="logo">
+      <img src="assets/WhatsApp Image 2026-02-02 at 10.34.54 AM.jpeg" alt="RoadResQ Logo" />
+      <span>RoadResQ</span>
+    </div>
 
     <ul class="menu">
-
-      <!-- ================= DASHBOARD ================= -->
-      <li
-        (click)="toggleSection('dashboard')"
-        [class.active]="activeSection === 'dashboard'"
-        [class.open]="activeSection === 'dashboard'">
-
+      <li (click)="toggleSection('dashboard')" [class.active]="activeSection === 'dashboard'" [class.open]="activeSection === 'dashboard'">
         📊 Dashboard
         <span class="arrow" [class.rotate]="showSubmenu">▶</span>
 
-        <!-- ================= SECURITY ACCESS ================= -->
         <ul *ngIf="showSubmenu && hasSecurityAccess">
-
-          <li
-            (click)="toggleSubSection('securityAccess'); $event.stopPropagation()"
-            [class.active]="activeSubSection === 'securityAccess'"
-            [class.open]="activeSubSection === 'securityAccess'">
-
+          <li (click)="toggleSubSection('securityAccess'); $event.stopPropagation()"
+              [class.active]="activeSubSection === 'securityAccess'"
+              [class.open]="activeSubSection === 'securityAccess'">
             🔒 Security Access
-            <span
-              class="arrow"
-              [class.rotate]="activeSubSection === 'securityAccess'">
-              ▶
-            </span>
+            <span class="arrow" [class.rotate]="activeSubSection === 'securityAccess'">▶</span>
 
             <ul>
-
-              <li
-                *ngIf="canAccess('ViewUsers')"
-                (click)="navigateTo('users'); $event.stopPropagation()"
-                [class.active]="isActive('users')">
+              <li *ngIf="canAccess('ViewUsers')" (click)="navigateTo('users'); $event.stopPropagation()" [class.active]="isActive('users')">
                 👥 Users
               </li>
-
-              <li
-                *ngIf="canAccess('ViewRoles')"
-                (click)="navigateTo('roles'); $event.stopPropagation()"
-                [class.active]="isActive('roles')">
+              <li *ngIf="canAccess('ViewRoles')" (click)="navigateTo('roles'); $event.stopPropagation()" [class.active]="isActive('roles')">
                 🛡️ Roles
               </li>
-
             </ul>
           </li>
-
         </ul>
       </li>
 
-      <!-- ================= REPORTS ================= -->
-      <li
-        (click)="navigateTo('reports')"
-        [class.active]="isActive('reports')">
-        📄 Reports
-      </li>
-
-      <!-- ================= SETTINGS ================= -->
-      <li
-        (click)="navigateTo('settings')"
-        [class.active]="isActive('settings')">
-        ⚙️ Settings
-      </li>
-
+      <li (click)="navigateTo('reports')" [class.active]="isActive('reports')">📄 Reports</li>
+      <li (click)="navigateTo('settings')" [class.active]="isActive('settings')">⚙️ Settings</li>
     </ul>
   </aside>
 
   <!-- ================= MAIN CONTENT ================= -->
   <div class="content">
 
-    <!-- ================= TOP BAR ================= -->
+    <!-- ================= TOPBAR ================= -->
     <header class="topbar">
       <h3>Admin Dashboard</h3>
-      <p *ngIf="adminName">Welcome, {{ adminName }}!</p>
 
       <div class="profile-wrapper" #profileBox>
         <div class="profile" (click)="toggleProfile()">
@@ -83,12 +49,9 @@
         </div>
 
         <div class="profile-card" *ngIf="showProfile">
-          <h4>Profile</h4>
-
-          <p><strong>Name:</strong> {{ adminName }}</p>
-          <p><strong>Role:</strong> {{ adminRole }}</p>
-
-          <button routerLink="/change-password">Change Password</button>
+          <p>{{ adminName }}</p>
+          <p>{{ adminRole }}</p>
+          <button (click)="openChangePassword()">Change Password</button>
           <button (click)="logout()">Logout</button>
         </div>
       </div>
@@ -99,5 +62,103 @@
       <router-outlet></router-outlet>
     </main>
 
+  </div>
+</div>
+
+<!-- ================= CHANGE PASSWORD MODAL ================= -->
+<div class="modal" *ngIf="showChangePassword">
+  <div class="change-password-wrapper">
+    <div class="change-password-card">
+
+      <!-- ================= YOUR FULL FORM HTML ================= -->
+      <h2>Change Password</h2>
+      <p class="subtitle">Update your account password</p>
+
+      <div *ngIf="successMessage" class="alert success">
+        {{ successMessage }}
+      </div>
+
+      <div *ngIf="errorMessage" class="alert error">
+        {{ errorMessage }}
+      </div>
+
+      <form (ngSubmit)="changePassword()" #form="ngForm" novalidate>
+
+        <div class="form-group">
+          <label for="currentPassword">
+            Current Password <span class="required">*</span>
+          </label>
+          <input
+            type="password"
+            id="currentPassword"
+            name="currentPassword"
+            required
+            minlength="8"
+            [(ngModel)]="model.CurrentPassword"
+            #currentPassword="ngModel"
+            placeholder="Enter current password"
+          />
+          <small class="error" *ngIf="currentPassword.touched && currentPassword.invalid">
+            Current password is required (minimum 8 characters)
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="newPassword">
+            New Password <span class="required">*</span>
+          </label>
+          <input
+            type="password"
+            id="newPassword"
+            name="newPassword"
+            #newPassword="ngModel"
+            required
+            minlength="8"
+            pattern="^[A-Z](?=.*[a-zA-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{7,}$"
+            [(ngModel)]="model.NewPassword"
+            placeholder="Enter new password"
+          />
+          <small class="error" *ngIf="newPassword.touched && newPassword.errors?.['required']">
+            Password is required
+          </small>
+          <small class="error" *ngIf="newPassword.touched && newPassword.errors?.['minlength']">
+            Password must be at least 8 characters long
+          </small>
+          <small class="error" *ngIf="newPassword.touched && newPassword.errors?.['pattern']">
+            Password must start with a capital letter and include letters, numbers & special characters
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">
+            Confirm New Password <span class="required">*</span>
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            #confirmPassword="ngModel"
+            required
+            minlength="8"
+            pattern="^[A-Z](?=.*[a-zA-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{7,}$"
+            [(ngModel)]="model.ConfirmPassword"
+            placeholder="Confirm new password"
+          />
+          <small class="error"
+                 *ngIf="confirmPassword.touched && (model.NewPassword !== model.ConfirmPassword || confirmPassword.invalid)">
+            Passwords do not match or invalid
+          </small>
+        </div>
+
+        <button type="submit" [disabled]="!form.valid || model.NewPassword !== model.ConfirmPassword">
+          Change Password
+        </button>
+
+        <div class="back-to-login">
+          <a routerLink="/login">← Back to Login</a>
+        </div>
+
+      </form>
+    </div>
   </div>
 </div>

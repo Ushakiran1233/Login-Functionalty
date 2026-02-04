@@ -21,7 +21,7 @@ export class RegisterComponent {
     mobile: '',
     password: '',
     confirmPassword: '',
-    role: 'User'   // default role, backend requires it
+    role: 'User'
   };
 
   // ===== COMPONENT STATE =====
@@ -32,7 +32,6 @@ export class RegisterComponent {
 
   constructor(private auth: AuthService, private router: Router) {}
 
-  // ===== TOGGLE PASSWORD VISIBILITY =====
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
@@ -45,7 +44,6 @@ export class RegisterComponent {
   register() {
     this.errorMessage = '';
 
-    // Password validation
     if (this.model.password !== this.model.confirmPassword) {
       this.errorMessage = 'Passwords do not match';
       return;
@@ -54,14 +52,34 @@ export class RegisterComponent {
     this.loading = true;
 
     this.auth.register(this.model).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.loading = false;
-        Swal.fire('Success', 'Registered successfully!', 'success');
-        this.router.navigate(['/login']);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Registration Successful',
+          html: `
+            <p>Your account has been <b>activated</b>.</p>
+            <p>A confirmation email has been sent to:</p>
+            <b>${this.model.email}</b>
+          `,
+          confirmButtonText: 'Go to Login'
+        }).then(() => {
+          this.router.navigate(['/login']);
+        });
       },
+
       error: err => {
         this.loading = false;
-        this.errorMessage = err?.error?.message || 'Registration failed';
+
+        // backend string or object support
+        if (typeof err?.error === 'string') {
+          this.errorMessage = err.error;
+        } else if (Array.isArray(err?.error)) {
+          this.errorMessage = err.error.join(', ');
+        } else {
+          this.errorMessage = 'Registration failed. Please try again.';
+        }
       }
     });
   }

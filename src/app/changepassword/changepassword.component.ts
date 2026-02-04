@@ -3,11 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
-
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-changepassword',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule,RouterLink],
   templateUrl: './changepassword.component.html',
   styleUrls: ['./changepassword.component.css']
 })

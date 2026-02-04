@@ -9,15 +9,23 @@ export interface AdminUser {
 
 // ================= Admin Reports =================
 export interface AdminReports {
-  totalUsers: number;                // Total users
-  usersWithMobile: number;           // Users with phone numbers
-  usersByRole: Record<string, number>; // Users per role
-  recentUsers: Array<{
+  totalUsers: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  totalRoles: number;
+
+  users: {
     userName: string;
     email: string;
     phoneNumber?: string;
-  }>;
+    isActive: boolean;
+  }[];
+
+  usersByRole?: {
+    [roleName: string]: number;
+  };
 }
+
 export interface UpdateRoleRequest {
   role: string;
 }

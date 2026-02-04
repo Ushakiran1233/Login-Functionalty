@@ -158,7 +158,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         console.log('Resolved Role:', role); // 🔍 DEBUG
 
         if (role === 'admin') {
-          this.router.navigate(['/admin-dashboard']);
+         // After successful login
+this.router.navigate(['/admin-dashboard'], { state: { showWelcome: true } });
+
         } else if (role === 'user') {
           this.router.navigate(['/dashboard']);
         } else {

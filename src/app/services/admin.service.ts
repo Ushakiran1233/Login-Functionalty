@@ -8,7 +8,10 @@ import { TokenService } from './token.service';
 export class AdminService {
 
   private authApi = 'https://localhost:7168/api/auth';
-  private adminApi = 'https://localhost:7168/api/admin/reports';
+  private reports='https://localhost:7168/api/admin/reports/reports';
+  private adminApi = 'https://localhost:7168/api/admin/reports/users/current';
+  private updateuser='https://localhost:7168/api/admin/reports/users';
+  private users='https://localhost:7168/api/admin/reports/users';
 private userapi='https://localhost:7168/api/admin/reports/Addusers';
 private permissionurl='https://localhost:7168/api/admin/reports/users/current/permissions';
   constructor(
@@ -26,14 +29,14 @@ private permissionurl='https://localhost:7168/api/admin/reports/users/current/pe
 
   // ================= REPORTS =================
   getAdminReports(): Observable<AdminReports> {
-    return this.http.get<AdminReports>(this.adminApi, {
+    return this.http.get<AdminReports>(this.reports, {
       headers: this.getAuthHeaders()
     });
   }
 
   // ================= USERS =================
   getAdminUsers(): Observable<AdminUser[]> {
-    return this.http.get<AdminUser[]>(`${this.adminApi}/users`, {
+    return this.http.get<AdminUser[]>(`${this.users}`, {
       headers: this.getAuthHeaders()
     });
   }
@@ -45,7 +48,7 @@ private permissionurl='https://localhost:7168/api/admin/reports/users/current/pe
     );
   }
 getCurrentUser(): Observable<any> {
-  return this.http.get(`${this.adminApi}/users/current`);
+  return this.http.get(`${this.adminApi}`);
 }
 
   // ================= ROLES =================
@@ -90,7 +93,7 @@ addUser(user: any): Observable<any> {
 
   // ================= UPDATE USER =================
   updateUser(userId: string, user: any): Observable<any> {
-    return this.http.put(`${this.adminApi}/users/${userId}`, user);
+    return this.http.put(`${this.updateuser}/${userId}`, user);
   }
 
 

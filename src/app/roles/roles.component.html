@@ -67,34 +67,15 @@
 
       <div class="row">
 
-        <!-- ADD ROLE → TEXTBOX -->
-        <div class="form-group" *ngIf="!editingRoleId">
+        <!-- ROLE NAME -->
+        <div class="form-group">
           <label>Role Name *</label>
           <input
             type="text"
             class="form-control"
             [(ngModel)]="roleFormData.name"
             name="roleName"
-            placeholder="Enter new role name" />
-        </div>
-
-        <!-- EDIT ROLE → DROPDOWN -->
-        <div class="form-group" *ngIf="editingRoleId">
-          <label>Role Name *</label>
-          <select
-            class="form-control"
-            [(ngModel)]="roleFormData.roleId"
-            name="roleId">
-
-            <option value="">-- Select Role --</option>
-
-            <option
-              *ngFor="let r of roles"
-              [ngValue]="r.roleId">
-              {{ r.name }}
-            </option>
-
-          </select>
+            placeholder="Enter role name" />
         </div>
 
         <!-- STATUS -->
@@ -122,10 +103,10 @@
         </textarea>
       </div>
 
-      <!-- PERMISSIONS (EDIT ONLY) -->
+      <!-- PERMISSIONS (SHOW ON ADD & EDIT) -->
       <div
         class="permission-box"
-        *ngIf="editingRoleId && permissionGroups?.length">
+        *ngIf="permissionGroups?.length">
 
         <h4>Assign Permissions</h4>
 
@@ -169,4 +150,3 @@
 
   </div>
 </div>
-
