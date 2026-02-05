@@ -6,7 +6,7 @@ import {
   ViewChild,
   HostListener
 } from '@angular/core';
-import { Router, RouterOutlet, NavigationEnd, RouterLink } from '@angular/router';
+import { RouterOutlet, NavigationEnd, RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { filter } from 'rxjs';
@@ -71,6 +71,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     const token = this.tokenService.getToken();
     if (!token) {
       this.router.navigate(['/login']);
+
       return;
     }
 
@@ -261,6 +262,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     if (this.model.NewPassword !== this.model.ConfirmPassword) {
       this.errorMessage = 'Passwords do not match.';
       return;
+
     }
 
     this.auth.changePassword(this.model).subscribe({

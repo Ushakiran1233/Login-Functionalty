@@ -7,7 +7,7 @@ import { ChangepasswordComponent } from './changepassword/changepassword.compone
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
-
+import { RouterModule } from '@angular/router';
 // Admin child components
 import { UsersComponent } from './users/users.component';
 import { RolesComponent } from './roles/roles.component';
